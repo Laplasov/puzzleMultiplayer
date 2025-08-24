@@ -1,0 +1,7 @@
+using UnityEngine;
+
+public interface IMouseSelect 
+{
+    SpaceMark OnMouseSelect(Vector3 mouseWorldPosition, out bool CanInstantiate);
+    //SpaceMark OnMouseSelect(Vector3 mouseWorldPos);
+}
