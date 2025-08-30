@@ -12,38 +12,59 @@ public class UnitManager : MonoBehaviour
 {
     [SerializeField]
     private CameraMovement m_cameraSystem;
-
+    [SerializeField]
+    private MonoBehaviour LocalUnitTransformerComponent;
+    [SerializeField]
+    private MonoBehaviour PhotonUnitTransformerComponent;
     [SerializeField]
     private GameObject m_unitA;
     [SerializeField]
     private GameObject m_unitB;
+    [SerializeField]
+    private UnitPrefabsSO m_prefabs;
 
-    List<SpaceMark> m_spaceMark = new List<SpaceMark>();
-
+    List<SpaceMark> m_spaceMark = new ();
     SpaceMark m_currentUnit = null;
     bool m_currentUnitInstantiate;
     bool m_isProcessing = false;
 
-    IUnitTransformer UTransform; // = new LocalUnitTransformer();
+    public enum UTType { LocalUnitTransformer, PhotonUnitTransformer }
+    IUnitTransformer UTransform;
 
-    [SerializeField]
-    private MonoBehaviour unitTransformerComponent;
-    private void OnEnable() => m_cameraSystem.OnTarget += ChooseTarget;
+    private void Awake() => 
+        SetTransform(PhotonUnitTransformerComponent);
+    private void OnEnable() => 
+        m_cameraSystem.OnTarget += ChooseTarget;
+    private void OnDisable() => 
+        m_cameraSystem.OnTarget -= ChooseTarget;
 
-    private void OnDisable() => m_cameraSystem.OnTarget -= ChooseTarget;
-
-    private void Awake()
+    public void SwitchToLocal() => SwitchTransformer(UTType.LocalUnitTransformer);
+    public void SwitchToPhoton() => SwitchTransformer(UTType.PhotonUnitTransformer);
+    void SwitchTransformer(UTType type)
     {
-        /*
-        var Transformer = new GameObject("PhotonUnitTransformer").AddComponent<PhotonUnitTransformer>();
-        Transformer.SetValues(m_unitA, m_unitB);
-        UTransform = Transformer;
-        */
-
-        if (unitTransformerComponent != null && unitTransformerComponent is IUnitTransformer transformer)
+        switch (type) 
+        { 
+            case UTType.LocalUnitTransformer:
+                SetTransform(LocalUnitTransformerComponent);
+                break;
+            case UTType.PhotonUnitTransformer: 
+                SetTransform(PhotonUnitTransformerComponent);
+                break;
+        }
+        ClearUnits();
+    }
+    void SetTransform(MonoBehaviour transform)
+    {
+        if (transform != null && transform is IUnitTransformer transformer)
             UTransform = transformer;
+        //UTransform.SetValues(m_unitA, m_unitB);
+        
+        var unit1 = m_prefabs.GetPrefabByName(m_unitA.name);
+        var unit2 = m_prefabs.GetPrefabByName(m_unitB.name);
+        Debug.Log($"Settled prefabs {m_unitA.name} and {m_unitB.name}");
 
-        UTransform.SetValues(m_unitA, m_unitB);
+        UTransform.SetValues(unit1, unit2);
+        
     }
 
     void ChooseTarget(SpaceMark target, bool canInstantiate)
@@ -54,7 +75,7 @@ public class UnitManager : MonoBehaviour
         if (m_currentUnit != null)
         {
             if (target.Unit == null)
-                UTransform.MoveUnit(m_currentUnit, target, canInstantiate);
+                UTransform.MoveUnit(m_currentUnit, target, canInstantiate, m_currentUnitInstantiate);
             else 
                 UTransform.SwapUnits(m_currentUnit, target, canInstantiate, m_currentUnitInstantiate);
 
@@ -73,23 +94,36 @@ public class UnitManager : MonoBehaviour
         {
             m_currentUnit = target;
             m_currentUnitInstantiate = canInstantiate;
-            UTransform.SelectUnit(m_currentUnit);
+            UTransform.SelectUnit(m_currentUnit, canInstantiate);
         }
         m_isProcessing = false;
     }
-
-
     [Button("Reset Units")]
     void ResetUnits() 
     {
         foreach (SpaceMark mark in m_spaceMark) 
             mark.SetPosition();
     }
-
+    /*
     [Button("Mirror Unit")]
-    void MirrorUnit()
+    void MirrorUnit() => UTransform.MoveUnit(m_currentUnit, m_currentUnit.MirroredMark, false);
+    */
+    [Button("Clear Unit")]
+    public void ClearUnits()
     {
-        UTransform.MoveUnit(m_currentUnit, m_currentUnit.MirroredMark, false);
+    foreach(PlacementType Type in PlacementSystem.GridRegister.Keys)
+        foreach(SpaceMark mark in PlacementSystem.GridRegister[Type].Values)
+            if (mark.Unit != null)
+            {
+                Destroy(mark.Unit);
+                mark.Unit = null;
+            }
     }
-
+    [Button("Count Marks")]
+    void CountMarks()
+    {
+        foreach (PlacementType Type in PlacementSystem.GridRegister.Keys)
+            foreach (SpaceMark mark in PlacementSystem.GridRegister[Type].Values)
+                Debug.Log(mark.Dimension);
+    }
 }

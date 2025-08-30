@@ -1,7 +1,9 @@
-using UnityEngine;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.UIElements;
 
+public enum PlacementType { Battlefield, UnitHolder, Hided }
 public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
 {
     [SerializeField]
@@ -12,6 +14,7 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
 
     [SerializeField] 
     Vector2Int _gridDimensions = new Vector2Int(5, 5);
+
 
     [SerializeField]
     bool _canInstantiate;
@@ -31,7 +34,12 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
 
     public Dictionary<Vector3, SpaceMark> GridMarks; 
     Vector3 _worldOffset;
-    public static Dictionary<Vector2Int, SpaceMark> GridMarksDimension = new Dictionary<Vector2Int, SpaceMark>(); 
+
+    [SerializeField]
+    PlacementType _currentType;
+
+    public static Dictionary<PlacementType, Dictionary<Vector2Int, SpaceMark>> GridRegister = new();
+    public Dictionary<Vector2Int, SpaceMark> GridMarksDimension = new(); 
     Vector2Int GridOffset => new Vector2Int(_gridDimensions.x / 2, _gridDimensions.y / 2);
 
     void Awake()
@@ -42,6 +50,7 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
         SetWorldOffset();
         PopulateGridMarks();
         SetupMirrorMapping();
+        GridRegister[_currentType] = GridMarksDimension;
     }
     void SetIndicator()
     {
@@ -86,7 +95,6 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
         if (_cellMark == null) return;
         Vector2Int offset = GridOffset;
         MarksParent = new GameObject("GridMarks");
-
         for (int x = 0; x < _gridDimensions.x; x++)
         {
             for (int y = 0; y < _gridDimensions.y; y++)
@@ -99,9 +107,10 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
                     Instantiate(_cellMark, worldPosition, Quaternion.identity, MarksParent.transform)
                     .AddComponent<SpaceMark>();
 
-                GridMarks[position].name = $"GridMark - {x},{y}";
+                GridMarks[position].name = $"{_currentType.ToString()} - {x},{y}";
                 GridMarks[position].Dimension = new Vector2Int(x, y);
-                GridMarksDimension[new Vector2Int(x, y)] = GridMarks[position];
+                Vector2Int globalCoordinate = new Vector2Int(x , y);
+                GridMarksDimension[globalCoordinate] = GridMarks[position];
             }
         }
     }
@@ -115,17 +124,31 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
 
         return _grid.GetCellCenterWorld(_gridPosition) - _worldOffset;
     }
-  
-
-void SetupMirrorMapping()
-{
-    foreach (SpaceMark mark in GridMarks.Values)
+    void SetupMirrorMapping()
     {
-        int mirrorY = (_gridDimensions.y - 1) - mark.Dimension.y; //_gridDimensions.y - mark.Dimension.y + 1;
-        mark.MirroredMark = GridMarksDimension[new Vector2Int(mark.Dimension.x, mirrorY)];
+        GameObject hidedMarks;
+        hidedMarks = new GameObject($"hidedMarks - {_currentType.ToString()}");
+        hidedMarks.SetActive(false); 
+
+        foreach (SpaceMark mark in GridMarks.Values)
+        {
+            if (_canInstantiate)
+            {
+                Vector2Int mirrorDimension = new Vector2Int(mark.Dimension.x, mark.Dimension.y + 1);
+                GameObject mirrorObj = new GameObject($"MirrorMark {mark.Dimension.x}-{mark.Dimension.y}");
+                mirrorObj.SetActive(false);
+
+                SpaceMark newMark = mirrorObj.AddComponent<SpaceMark>();
+                newMark.transform.parent = hidedMarks.transform;
+
+                GridMarksDimension[mirrorDimension] = newMark;
+                GridMarksDimension[mirrorDimension].MirroredMark = mark;
+            } 
+            int mirrorY = (_gridDimensions.y - 1) - mark.Dimension.y;
+            mark.MirroredMark = GridMarksDimension[new Vector2Int(mark.Dimension.x, mirrorY)];
+        }
     }
-}
-public void OnMouseHover(Vector3 mouseWorldPosition)
+    public void OnMouseHover(Vector3 mouseWorldPosition)
     {
         Vector3 cellCenter = CellPosition(mouseWorldPosition);
         _cellIndicator.transform.position = cellCenter + Vector3.up * IndicatorOffset;
