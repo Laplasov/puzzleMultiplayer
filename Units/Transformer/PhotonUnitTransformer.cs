@@ -79,7 +79,7 @@ namespace Assets.Scripts.Units
         void RPC_CreateUnit(int dimX, int dimY)
         {
             Vector2Int originalDim = new Vector2Int(dimX, dimY);
-            SpaceMark mirroredTarget = PlacementSystem.GridRegister[PlacementType.UnitHolder][originalDim].MirroredMark;
+            SpaceMark mirroredTarget = GridRegistry.GetGrid(PlacementType.UnitHolder)[originalDim].MirroredMark;
 
             mirroredTarget.Unit = Instantiate(m_unitB, mirroredTarget.transform.position, Quaternion.identity);
             mirroredTarget.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
@@ -91,7 +91,7 @@ namespace Assets.Scripts.Units
         {
             PlacementType type = CanInstantiate ? PlacementType.UnitHolder : PlacementType.Battlefield;
             Vector2Int originalDim = new Vector2Int(dimX, dimY);
-            SpaceMark mirroredCurrent = PlacementSystem.GridRegister[type][originalDim].MirroredMark;
+            SpaceMark mirroredCurrent = GridRegistry.GetGrid(type)[originalDim].MirroredMark;
             if (mirroredCurrent.Unit != null)
                 mirroredCurrent.Unit.GetComponent<MeshRenderer>().material.color = Color.blue;
         }
@@ -105,8 +105,8 @@ namespace Assets.Scripts.Units
             PlacementType typeNext = CanInstantiate ? PlacementType.UnitHolder : PlacementType.Battlefield;
             PlacementType typeCurrent = currentInstantiate ? PlacementType.UnitHolder : PlacementType.Battlefield;
 
-            SpaceMark mirroredCurrent = PlacementSystem.GridRegister[typeCurrent][originalCurrentDim].MirroredMark;
-            SpaceMark mirroredTarget = PlacementSystem.GridRegister[typeNext][originalTargetDim].MirroredMark;
+            SpaceMark mirroredCurrent = GridRegistry.GetGrid(typeCurrent)[originalCurrentDim].MirroredMark;
+            SpaceMark mirroredTarget = GridRegistry.GetGrid(typeNext)[originalTargetDim].MirroredMark;
 
             if (mirroredCurrent.Unit != null)
             {
@@ -126,8 +126,8 @@ namespace Assets.Scripts.Units
             PlacementType typeNext = CanInstantiate ? PlacementType.UnitHolder : PlacementType.Battlefield;
             PlacementType typeCurrent = currentInstantiate ? PlacementType.UnitHolder : PlacementType.Battlefield;
 
-            SpaceMark mirroredCurrent = PlacementSystem.GridRegister[typeCurrent][originalCurrentDim].MirroredMark;
-            SpaceMark mirroredTarget = PlacementSystem.GridRegister[typeNext][originalTargetDim].MirroredMark;
+            SpaceMark mirroredCurrent = GridRegistry.GetGrid(typeCurrent)[originalCurrentDim].MirroredMark;
+            SpaceMark mirroredTarget = GridRegistry.GetGrid(typeNext)[originalTargetDim].MirroredMark;
 
             if (mirroredCurrent.Unit != null && mirroredTarget.Unit != null)
             {

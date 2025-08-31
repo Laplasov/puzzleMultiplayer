@@ -17,9 +17,9 @@ public class UnitManager : MonoBehaviour
     [SerializeField]
     private MonoBehaviour PhotonUnitTransformerComponent;
     [SerializeField]
-    private GameObject m_unitA;
+    private string m_unitA;
     [SerializeField]
-    private GameObject m_unitB;
+    private string m_unitB;
     [SerializeField]
     private UnitPrefabsSO m_prefabs;
 
@@ -32,7 +32,7 @@ public class UnitManager : MonoBehaviour
     IUnitTransformer UTransform;
 
     private void Awake() => 
-        SetTransform(PhotonUnitTransformerComponent);
+        SetTransform(LocalUnitTransformerComponent);
     private void OnEnable() => 
         m_cameraSystem.OnTarget += ChooseTarget;
     private void OnDisable() => 
@@ -59,9 +59,9 @@ public class UnitManager : MonoBehaviour
             UTransform = transformer;
         //UTransform.SetValues(m_unitA, m_unitB);
         
-        var unit1 = m_prefabs.GetPrefabByName(m_unitA.name);
-        var unit2 = m_prefabs.GetPrefabByName(m_unitB.name);
-        Debug.Log($"Settled prefabs {m_unitA.name} and {m_unitB.name}");
+        var unit1 = m_prefabs.GetPrefabByName(m_unitA);
+        var unit2 = m_prefabs.GetPrefabByName(m_unitB);
+        Debug.Log($"Settled prefabs {m_unitA} and {m_unitB}");
 
         UTransform.SetValues(unit1, unit2);
         
@@ -111,8 +111,8 @@ public class UnitManager : MonoBehaviour
     [Button("Clear Unit")]
     public void ClearUnits()
     {
-    foreach(PlacementType Type in PlacementSystem.GridRegister.Keys)
-        foreach(SpaceMark mark in PlacementSystem.GridRegister[Type].Values)
+    foreach(PlacementType Type in GridRegistry.GetAll().Keys)
+        foreach(SpaceMark mark in GridRegistry.GetGrid(Type).Values)
             if (mark.Unit != null)
             {
                 Destroy(mark.Unit);
@@ -122,8 +122,8 @@ public class UnitManager : MonoBehaviour
     [Button("Count Marks")]
     void CountMarks()
     {
-        foreach (PlacementType Type in PlacementSystem.GridRegister.Keys)
-            foreach (SpaceMark mark in PlacementSystem.GridRegister[Type].Values)
+        foreach (PlacementType Type in GridRegistry.GetAll().Keys)
+            foreach (SpaceMark mark in GridRegistry.GetGrid(Type).Values)
                 Debug.Log(mark.Dimension);
     }
 }
