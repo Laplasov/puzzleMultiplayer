@@ -8,16 +8,16 @@ using static UnityEngine.GraphicsBuffer;
 
 public class LocalUnitTransformer : MonoBehaviour, IUnitTransformer
 {
-    private GameObject m_unitA;
-    private GameObject m_unitB;
-    public void SetValues(GameObject unitA, GameObject unitB)
+    UnitPrefabsSO m_units;
+    public void SetValues(UnitPrefabsSO units)
     {
-        m_unitA = unitA;
-        m_unitB = unitB;
+        m_units = units;
     }
-    public void CreateUnit(SpaceMark target)
+    public void CreateUnit(SpaceMark target, string name)
     {
-        target.Unit = Instantiate(m_unitA, target.transform.position, Quaternion.identity);
+        var unit = m_units.GetPrefabByName(name);
+
+        target.Unit = Instantiate(unit, target.transform.position, Quaternion.identity);
         target.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
     }
     public void SelectUnit(SpaceMark current, bool CanInstantiate)

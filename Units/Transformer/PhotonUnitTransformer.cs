@@ -10,25 +10,24 @@ namespace Assets.Scripts.Units
 {
     public class PhotonUnitTransformer : MonoBehaviour, IUnitTransformer
     {
-        GameObject m_unitA;
-        GameObject m_unitB;
+        UnitPrefabsSO m_units;
         PhotonView photonView;
 
         GameObject[] m_characterHolder;
-        public void SetValues(GameObject unitA, GameObject unitB)
+        public void SetValues(UnitPrefabsSO units)
         {
-            m_unitA = unitA;
-            m_unitB = unitB;
+            m_units = units;
             photonView = GetComponent<PhotonView>();
         }
 
-        public void CreateUnit(SpaceMark target) 
+        public void CreateUnit(SpaceMark target, string name) 
         {
-            //target.Unit = PhotonNetwork.Instantiate("Piece", target.transform.position, Quaternion.identity);
-            target.Unit = Instantiate(m_unitA, target.transform.position, Quaternion.identity);
+            var unit = m_units.GetPrefabByName(name);
+
+            target.Unit = Instantiate(unit, target.transform.position, Quaternion.identity);
             target.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
 
-            photonView.RPC("RPC_CreateUnit", RpcTarget.Others, target.Dimension.x, target.Dimension.y);
+            photonView.RPC("RPC_CreateUnit", RpcTarget.Others, target.Dimension.x, target.Dimension.y, name);
         }
         public void SelectUnit(SpaceMark current, bool CanInstantiate)
         {
@@ -76,12 +75,14 @@ namespace Assets.Scripts.Units
         }
 
         [PunRPC]
-        void RPC_CreateUnit(int dimX, int dimY)
+        void RPC_CreateUnit(int dimX, int dimY, string name)
         {
             Vector2Int originalDim = new Vector2Int(dimX, dimY);
             SpaceMark mirroredTarget = GridRegistry.GetGrid(PlacementType.UnitHolder)[originalDim].MirroredMark;
 
-            mirroredTarget.Unit = Instantiate(m_unitB, mirroredTarget.transform.position, Quaternion.identity);
+            var unit = m_units.GetPrefabByName(name);
+
+            mirroredTarget.Unit = Instantiate(unit, mirroredTarget.transform.position, Quaternion.identity);
             mirroredTarget.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
             Activator(true, mirroredTarget);
         }

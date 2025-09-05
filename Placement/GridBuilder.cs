@@ -8,14 +8,13 @@ using UnityEngine;
 class GridBuilder : MonoBehaviour
 {
     GridConfig _config;
-    Dictionary<Vector3, SpaceMark> GridMarks;
-    Dictionary<Vector2Int, SpaceMark> GridMarksDimension;
     Vector3 _worldOffset;
     GameObject MarksParent;
     Grid _grid;
     GameObject _cellMark;
     Vector3Int _gridPosition;
-
+    Dictionary<Vector3, SpaceMark> GridMarks;
+    Dictionary<Vector2Int, SpaceMark> GridMarksDimension;
     Vector2Int GridOffset => new Vector2Int(_config.dimensions.x / 2, _config.dimensions.y / 2);
     public GridBuilder SetGridBuilder(GridConfig config, Grid grid, GameObject cellMark)
     {

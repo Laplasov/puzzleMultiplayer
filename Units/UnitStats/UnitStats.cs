@@ -12,6 +12,8 @@ public class UnitStats : MonoBehaviour
     public string Name => unitBaseStats.name;
     public int HP => unitBaseStats.HP;
     public int ATK => unitBaseStats.ATK;
+    public int SP => unitBaseStats.SP;
+    public int INIT => unitBaseStats.SP;
     public int HPMOD => unitBaseStats.HP + (StatsModifier?.Sum(x => x.HP) ?? 0);
     public int ATKMOD => unitBaseStats.ATK + (StatsModifier?.Sum(x => x.ATK) ?? 0);
 

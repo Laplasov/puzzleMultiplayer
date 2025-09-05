@@ -11,6 +11,7 @@ public class UnitPrefabsSO : ScriptableObject
     private List<StatsModifier> m_StatsModifier;
     public GameObject GetPrefab(string propertyName) => 
         GetPrefabByName(propertyName);
+    public List<GameObject> GetAllPrefab() => m_Prefab;
     public GameObject GetPrefabByName(string prefabName) => 
         m_Prefab?.FirstOrDefault(prefab => prefab != null && prefab.name == prefabName);
     public StatsModifier GetModifier(string modName) => 

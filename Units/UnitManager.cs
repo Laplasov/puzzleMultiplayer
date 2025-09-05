@@ -17,10 +17,6 @@ public class UnitManager : MonoBehaviour
     [SerializeField]
     private MonoBehaviour PhotonUnitTransformerComponent;
     [SerializeField]
-    private string m_unitA;
-    [SerializeField]
-    private string m_unitB;
-    [SerializeField]
     private UnitPrefabsSO m_prefabs;
 
     List<SpaceMark> m_spaceMark = new ();
@@ -40,6 +36,13 @@ public class UnitManager : MonoBehaviour
 
     public void SwitchToLocal() => SwitchTransformer(UTType.LocalUnitTransformer);
     public void SwitchToPhoton() => SwitchTransformer(UTType.PhotonUnitTransformer);
+
+    public void CreateUnit(SpaceMark target, string unitName)
+    {
+        m_spaceMark.Add(target);
+        UTransform.CreateUnit(target, unitName);
+    }
+
     void SwitchTransformer(UTType type)
     {
         switch (type) 
@@ -57,13 +60,10 @@ public class UnitManager : MonoBehaviour
     {
         if (transform != null && transform is IUnitTransformer transformer)
             UTransform = transformer;
-        //UTransform.SetValues(m_unitA, m_unitB);
         
-        var unit1 = m_prefabs.GetPrefabByName(m_unitA);
-        var unit2 = m_prefabs.GetPrefabByName(m_unitB);
-        Debug.Log($"Settled prefabs {m_unitA} and {m_unitB}");
+        //var unit = m_prefabs.GetPrefabByName(m_unitA);
 
-        UTransform.SetValues(unit1, unit2);
+        UTransform.SetValues(m_prefabs);
         
     }
 
@@ -84,11 +84,12 @@ public class UnitManager : MonoBehaviour
         else
         if (target.Unit == null)
         {
+            
             if (canInstantiate)
             {
-                m_spaceMark.Add(target);
-                UTransform.CreateUnit(target);
+                //CreateUnit(target, "PieceA");
             }
+            
         }
         else
         {
