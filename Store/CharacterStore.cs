@@ -22,6 +22,8 @@ public class CharacterStore : MonoBehaviour
     public GameObject Prefab;
     [HideInInspector]
     public UnityEvent<int> OnReturnToStore;
+    [HideInInspector]
+    public Func<SpaceMark> OnGetFreeMark;
     int _index;
 
     public UnityEvent<int> SetPrefab(GameObject prefab, int index)
@@ -32,6 +34,7 @@ public class CharacterStore : MonoBehaviour
 
         GetComponent<Button>().onClick
             .AddListener(() => {
+                if (OnGetFreeMark != null && OnGetFreeMark?.Invoke() == null) return;
                 OnReturnToStore?.Invoke(_index);
                 OnReturnToStore.RemoveAllListeners();
             });

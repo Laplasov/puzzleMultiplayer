@@ -18,6 +18,8 @@ public class UnitManager : MonoBehaviour
     private MonoBehaviour PhotonUnitTransformerComponent;
     [SerializeField]
     private UnitPrefabsSO m_prefabs;
+    [SerializeField]
+    CellCalculator _cellCalculator;
 
     List<SpaceMark> m_spaceMark = new ();
     SpaceMark m_currentUnit = null;
@@ -60,14 +62,10 @@ public class UnitManager : MonoBehaviour
     {
         if (transform != null && transform is IUnitTransformer transformer)
             UTransform = transformer;
-        
-        //var unit = m_prefabs.GetPrefabByName(m_unitA);
-
         UTransform.SetValues(m_prefabs);
-        
     }
 
-    void ChooseTarget(SpaceMark target, bool canInstantiate)
+    void ChooseTarget(SpaceMark target, PlacementSystem board)
     {
         if (m_isProcessing) return;
         m_isProcessing = true;
@@ -75,27 +73,21 @@ public class UnitManager : MonoBehaviour
         if (m_currentUnit != null)
         {
             if (target.Unit == null)
-                UTransform.MoveUnit(m_currentUnit, target, canInstantiate, m_currentUnitInstantiate);
+                UTransform.MoveUnit(m_currentUnit, target, board.CanInstantiate(), m_currentUnitInstantiate);
             else 
-                UTransform.SwapUnits(m_currentUnit, target, canInstantiate, m_currentUnitInstantiate);
+                UTransform.SwapUnits(m_currentUnit, target, board.CanInstantiate(), m_currentUnitInstantiate);
 
             m_currentUnit = null;
+            _cellCalculator.Rule = PlacementRule.Full;
         }
         else
-        if (target.Unit == null)
+        if (target.Unit != null)
         {
-            
-            if (canInstantiate)
-            {
-                //CreateUnit(target, "PieceA");
-            }
-            
-        }
-        else
-        {
+            _cellCalculator.Rule = target.Unit.GetComponent<IPlacementRule>().GetPlacementRule();
+
             m_currentUnit = target;
-            m_currentUnitInstantiate = canInstantiate;
-            UTransform.SelectUnit(m_currentUnit, canInstantiate);
+            m_currentUnitInstantiate = board.CanInstantiate();
+            UTransform.SelectUnit(m_currentUnit, board.CanInstantiate());
         }
         m_isProcessing = false;
     }
@@ -105,10 +97,6 @@ public class UnitManager : MonoBehaviour
         foreach (SpaceMark mark in m_spaceMark) 
             mark.SetPosition();
     }
-    /*
-    [Button("Mirror Unit")]
-    void MirrorUnit() => UTransform.MoveUnit(m_currentUnit, m_currentUnit.MirroredMark, false);
-    */
     [Button("Clear Unit")]
     public void ClearUnits()
     {

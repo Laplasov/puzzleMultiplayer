@@ -38,24 +38,6 @@ public class UnitStoreController : MonoBehaviour
 
     void OnDisable() => m_store.OnBuyUnit -= CreateUnit;
     int GetRandom() => m_random.Next(0, m_units.Count);
-
-    public void CreateUnit(GameObject unit)
-    {
-        SpaceMark vacantMark = null;
-        foreach (var mark in m_spaceMark)
-        {
-            if (mark.Unit == null)
-            {
-                vacantMark = mark;
-                break;
-            }
-        }
-        if (vacantMark != null)
-            m_unitManager.CreateUnit(vacantMark, unit.name);
-        else
-            Debug.Log("No Vacant Mark!");
-    }
-
     void Init()
     {
         var collection = GridRegistry.GetGrid(PlacementType.UnitHolder)
@@ -68,6 +50,28 @@ public class UnitStoreController : MonoBehaviour
             m_spaceMark[i] = item.Value;
             ++i;
         }
+        m_store.OnGetFreeMark = GetFreeMark;
+    }
+    public void CreateUnit(GameObject unit)
+    {
+        SpaceMark vacantMark = GetFreeMark();
+        if (vacantMark != null)
+            m_unitManager.CreateUnit(vacantMark, unit.name);
+    }
+    SpaceMark GetFreeMark()
+    {
+        SpaceMark vacantMark = null;
+        foreach (var mark in m_spaceMark)
+        {
+            if (mark.Unit == null)
+            {
+                vacantMark = mark;
+                break;
+            }
+        }
+        if (vacantMark == null)
+            Debug.Log("No Vacant Marks!");
+        return vacantMark;
     }
 
     public void Reroll()

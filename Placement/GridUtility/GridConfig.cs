@@ -15,6 +15,16 @@ public class GridConfig
     public float indicatorScaleFactor = 0.5f;
     [SerializeField]
     public bool canInstantiate;
+
+    [System.NonSerialized]
+    public Grid grid;
+    [System.NonSerialized]
+    public Vector3 worldOffset;
+    [System.NonSerialized]
+    public Vector3Int gridPosition;
+
+    public Vector2Int GridOffset => new Vector2Int(dimensions.x / 2, dimensions.y / 2);
+
     public Vector3 GridToLocalScale(Grid grid) 
     {
         return new Vector3(

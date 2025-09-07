@@ -17,6 +17,7 @@ public class Store : MonoBehaviour
     Stack<GameObject> _emptyStack = new();
 
     public event Action<GameObject> OnBuyUnit;
+    public Func<SpaceMark> OnGetFreeMark;
 
 
     bool IsEmptySlot(int index) => _slotStates[index] == SlotState.Empty;
@@ -79,10 +80,13 @@ public class Store : MonoBehaviour
                 child.SetActive(false);
 
                 var newUnit = Instantiate(_character, SlotContents[i].transform);
-                newUnit.GetComponent<CharacterStore>()
-                       .SetPrefab(prefab, i)
-                       .AddListener(ClearSlot);
 
+                var character = newUnit.GetComponent<CharacterStore>();
+                character
+                    .SetPrefab(prefab, i)
+                    .AddListener(ClearSlot);
+
+                character.OnGetFreeMark = OnGetFreeMark;
                 _slotStates[i] = SlotState.Unit;
                 return;
             }

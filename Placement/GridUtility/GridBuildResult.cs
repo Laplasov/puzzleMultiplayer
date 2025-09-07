@@ -9,15 +9,11 @@ public class GridBuildResult
 {
     public Dictionary<Vector3, SpaceMark> GridMarks { get; }
     public Dictionary<Vector2Int, SpaceMark> GridMarksDimension { get; }
-    public Func<Vector3, Vector3> CellPositionCalculator { get; }
-
     public GridBuildResult(
         Dictionary<Vector3, SpaceMark> gridMarks,
-        Dictionary<Vector2Int, SpaceMark> gridMarksDimension,
-        Func<Vector3, Vector3> cellPositionCalculator)
+        Dictionary<Vector2Int, SpaceMark> gridMarksDimension)
     {
         GridMarks = gridMarks;
         GridMarksDimension = gridMarksDimension;
-        CellPositionCalculator = cellPositionCalculator;
     }
 }

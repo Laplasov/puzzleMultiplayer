@@ -13,7 +13,7 @@ public class CameraMovement : MonoBehaviour
     float m_scroll = 0;
     Transform m_Camera;
     public LayerMask interactableLayer;
-    public event Action<SpaceMark, bool> OnTarget;
+    public event Action<SpaceMark, PlacementSystem> OnTarget;
 
     [SerializeField]
     const float m_speed = 5;
@@ -65,9 +65,9 @@ public class CameraMovement : MonoBehaviour
 
             if (m_selectControl.triggered)
             {
-                bool canInstantiate;
-                SpaceMark mark = hit.collider.GetComponent<IMouseSelect>().OnMouseSelect(mouseWorldPos, out canInstantiate);
-                OnTarget?.Invoke(mark, canInstantiate);
+                PlacementSystem board;
+                SpaceMark mark = hit.collider.GetComponent<IMouseSelect>().OnMouseSelect(mouseWorldPos, out board);
+                OnTarget?.Invoke(mark, board);
             }
         }
     }

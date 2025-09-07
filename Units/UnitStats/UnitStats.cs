@@ -4,10 +4,12 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-public class UnitStats : MonoBehaviour
+public class UnitStats : MonoBehaviour, IPlacementRule
 {
     [SerializeField]
     private UnitBaseStats unitBaseStats;
+    [SerializeField]
+    public PlacementRule placementRule;
     public List<StatsModifier> StatsModifier;
     public string Name => unitBaseStats.name;
     public int HP => unitBaseStats.HP;
@@ -33,4 +35,5 @@ public class UnitStats : MonoBehaviour
         StatsModifier.Add(new StatsModifier(10,10));
         GetStats();
     }
+    public PlacementRule GetPlacementRule() => placementRule;
 }

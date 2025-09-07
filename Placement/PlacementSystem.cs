@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static UnityEngine.Rendering.DebugUI;
 
 public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
 {
@@ -14,14 +17,20 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
     GameObject _cellMark;
     
     [SerializeField]
-    private GridConfig _config;
+    CellCalculator _cellCalculator;
+
+    [SerializeField]
+    GridConfig _config;
+
+    [SerializeField]
+    MarkStatus _markStatus;
 
     GridBuilder gridBuilder;
     Grid _grid;
 
     public Dictionary<Vector3, SpaceMark> GridMarks; 
     public Dictionary<Vector2Int, SpaceMark> GridMarksDimension; 
-    public Func<Vector3, Vector3> CellPositionCalculation;
+    public bool CanInstantiate() => _config.canInstantiate;
 
     void Awake()
     {
@@ -41,7 +50,7 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
     {
         gridBuilder = new GameObject("Builder")
             .AddComponent<GridBuilder>()
-            .SetGridBuilder(_config, _grid, _cellMark);
+            .SetGridBuilder(_config, _grid, _cellMark, _cellCalculator);
 
         var buildResult = gridBuilder
             .SetWorldOffset()
@@ -51,20 +60,19 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
 
         GridMarks = buildResult.GridMarks;
         GridMarksDimension = buildResult.GridMarksDimension;
-        CellPositionCalculation = buildResult.CellPositionCalculator;
     }
 
     public void OnMouseHover(Vector3 mouseWorldPosition)
     {
-        Vector3 cellCenter = CellPositionCalculation(mouseWorldPosition);
+        Vector3 cellCenter = _cellCalculator.CellPosition(mouseWorldPosition, _config);
         _cellIndicator.transform.position = cellCenter + Vector3.up * _config.indicatorOffset;
+        _markStatus.SetShowStats(cellCenter, GridMarks);
     }
 
-    public SpaceMark OnMouseSelect(Vector3 mouseWorldPosition, out bool canInstantiate)
+    public SpaceMark OnMouseSelect(Vector3 mouseWorldPosition, out PlacementSystem This)
     {
-        canInstantiate = CanInstantiate();
-        Vector3 cellCenter = CellPositionCalculation(mouseWorldPosition);
+        This = this;
+        Vector3 cellCenter = _cellCalculator.CellPosition(mouseWorldPosition, _config);
         return GridMarks[cellCenter];
     }
-    bool CanInstantiate() => _config.canInstantiate;
 }
