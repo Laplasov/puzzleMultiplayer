@@ -1,12 +1,6 @@
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using TMPro;
-using Unity.VisualScripting;
-using UnityEditor.Build.Reporting;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEngine.Rendering.DebugUI;
+
 
 public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
 {
@@ -25,8 +19,9 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
     [SerializeField]
     MarkStatus _markStatus;
 
-    GridBuilder gridBuilder;
+    GridBuilder _gridBuilder;
     Grid _grid;
+    Highlighter _highlighter;
 
     public Dictionary<Vector3, SpaceMark> GridMarks; 
     public Dictionary<Vector2Int, SpaceMark> GridMarksDimension; 
@@ -34,6 +29,7 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
 
     void Awake()
     {
+        _highlighter = new Highlighter();
         InitializeComponents();
         BuildGrid();
         GridRegistry.RegisterGrid(_config.currentType, GridMarksDimension);
@@ -48,11 +44,11 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
 
     private void BuildGrid()
     {
-        gridBuilder = new GameObject("Builder")
+        _gridBuilder = new GameObject("Builder")
             .AddComponent<GridBuilder>()
             .SetGridBuilder(_config, _grid, _cellMark, _cellCalculator);
 
-        var buildResult = gridBuilder
+        var buildResult = _gridBuilder
             .SetWorldOffset()
             .PopulateGridMarks()
             .SetupMirrorMapping()
@@ -65,7 +61,8 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
     public void OnMouseHover(Vector3 mouseWorldPosition)
     {
         Vector3 cellCenter = _cellCalculator.CellPosition(mouseWorldPosition, _config);
-        _cellIndicator.transform.position = cellCenter + Vector3.up * _config.indicatorOffset;
+        //_cellIndicator.transform.position = cellCenter + Vector3.up * _config.indicatorOffset;
+        _highlighter.SetHighlight(cellCenter, GridMarks);
         _markStatus.SetShowStats(cellCenter, GridMarks);
     }
 
@@ -75,4 +72,5 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
         Vector3 cellCenter = _cellCalculator.CellPosition(mouseWorldPosition, _config);
         return GridMarks[cellCenter];
     }
+    public void OnMouseHoverExit() => _highlighter.StopHighlight();
 }

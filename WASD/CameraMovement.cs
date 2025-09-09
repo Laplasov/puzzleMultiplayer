@@ -14,6 +14,7 @@ public class CameraMovement : MonoBehaviour
     Transform m_Camera;
     public LayerMask interactableLayer;
     public event Action<SpaceMark, PlacementSystem> OnTarget;
+    IMouseHover m_lastHit;
 
     [SerializeField]
     const float m_speed = 5;
@@ -61,13 +62,27 @@ public class CameraMovement : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, interactableLayer))
         {
             Vector3 mouseWorldPos = hit.point;
-            hit.collider.GetComponent<IMouseHover>().OnMouseHover(mouseWorldPos);
+            var newHit = hit.collider.GetComponent<IMouseHover>();
+
+            if (m_lastHit != newHit)
+                m_lastHit?.OnMouseHoverExit();
+
+            m_lastHit = newHit;
+            m_lastHit.OnMouseHover(mouseWorldPos);
 
             if (m_selectControl.triggered)
             {
                 PlacementSystem board;
                 SpaceMark mark = hit.collider.GetComponent<IMouseSelect>().OnMouseSelect(mouseWorldPos, out board);
                 OnTarget?.Invoke(mark, board);
+            }
+        }
+        else
+        {
+            if (m_lastHit != null)
+            {
+                m_lastHit.OnMouseHoverExit();
+                m_lastHit = null;
             }
         }
     }
