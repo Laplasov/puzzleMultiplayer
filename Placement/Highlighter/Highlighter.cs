@@ -3,35 +3,31 @@ using UnityEngine;
 
 public class Highlighter
 {
-    SpaceMark _currentMark;
-    public void SetHighlight(Vector3 cellCenter, Dictionary<Vector3, SpaceMark> GridMarks)
+    List<SpaceMark> _currentMarks = new List<SpaceMark>(); 
+
+    public void SetHighlight(List<SpaceMark> marks)
     {
-        if (!GridMarks.ContainsKey(cellCenter))
-        {
-            if (_currentMark != null)
-            {
-                _currentMark.ResetColor();
-                _currentMark = null;
-            }
-            return;
-        }
+        if (_currentMarks == marks) return;
 
-        var mark = GridMarks[cellCenter];
-        if (_currentMark == mark) return;
-
-        if (mark != null)
+        if (marks != null)
         {
-            _currentMark?.ResetColor();
-            mark.SetColor(Color.red);
-            _currentMark = mark;
+            foreach (SpaceMark markCurrent in _currentMarks)
+                markCurrent?.ResetColor();
+
+            foreach (SpaceMark mark in marks)
+                mark?.SetColor(Color.red); 
+
+            _currentMarks = marks;
         }
     }
+
     public void StopHighlight()
     {
-        if (_currentMark != null)
+        if (_currentMarks != null)
         {
-            _currentMark.ResetColor();
-            _currentMark = null;
+            foreach (SpaceMark markCurrent in _currentMarks)
+                markCurrent?.ResetColor();
+            _currentMarks = null;
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using static UnityEngine.Rendering.STP;
 
 class GridBuilder : MonoBehaviour
 {
@@ -63,8 +64,10 @@ class GridBuilder : MonoBehaviour
                     .AddComponent<SpaceMark>();
                 GridMarks[position].name = $"{_config.currentType.ToString()} - {x},{y}";
                 GridMarks[position].Dimension = new Vector2Int(x, y);
+                GridMarks[position].Config = _config;
                 Vector2Int globalCoordinate = new Vector2Int(x, y);
                 GridMarksDimension[globalCoordinate] = GridMarks[position];
+                GridMarks[position].GridMarksDimension = GridMarksDimension;
             }
         }
         return this;
@@ -83,7 +86,7 @@ class GridBuilder : MonoBehaviour
                 GameObject mirrorObj = new GameObject($"MirrorMark {mark.Dimension.x}-{mark.Dimension.y}");
                 mirrorObj.SetActive(false);
                 SpaceMark newMark = mirrorObj.AddComponent<SpaceMark>();
-                newMark.transform.parent = hidedMarks.transform;
+                newMark.transform.parent = hidedMarks.transform; 
                 GridMarksDimension[mirrorDimension] = newMark;
                 GridMarksDimension[mirrorDimension].MirroredMark = mark;
             }

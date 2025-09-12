@@ -10,6 +10,8 @@ public class UnitStats : MonoBehaviour, IPlacementRule
     private UnitBaseStats unitBaseStats;
     [SerializeField]
     public PlacementRule placementRule;
+    [SerializeField]
+    public Vector2Int Size;
     public List<StatsModifier> StatsModifier;
     public string Name => unitBaseStats.name;
     public int HP => unitBaseStats.HP;
@@ -36,4 +38,5 @@ public class UnitStats : MonoBehaviour, IPlacementRule
         GetStats();
     }
     public PlacementRule GetPlacementRule() => placementRule;
+    public Vector2Int GetSize() => Size;
 }

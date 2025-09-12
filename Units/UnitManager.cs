@@ -2,6 +2,7 @@ using Assets.Scripts.Units;
 using NUnit.Framework;
 using Photon.Pun;
 using System.Collections.Generic;
+using System.Drawing;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -25,6 +26,7 @@ public class UnitManager : MonoBehaviour
     SpaceMark m_currentUnit = null;
     bool m_currentUnitInstantiate;
     bool m_isProcessing = false;
+    Vector2Int SingeSize = new Vector2Int(1,1);
 
     public enum UTType { LocalUnitTransformer, PhotonUnitTransformer }
     IUnitTransformer UTransform;
@@ -36,8 +38,10 @@ public class UnitManager : MonoBehaviour
     private void OnDisable() => 
         m_cameraSystem.OnTarget -= ChooseTarget;
 
-    public void SwitchToLocal() => SwitchTransformer(UTType.LocalUnitTransformer);
-    public void SwitchToPhoton() => SwitchTransformer(UTType.PhotonUnitTransformer);
+    public void SwitchToLocal() => 
+        SwitchTransformer(UTType.LocalUnitTransformer);
+    public void SwitchToPhoton() => 
+        SwitchTransformer(UTType.PhotonUnitTransformer);
 
     public void CreateUnit(SpaceMark target, string unitName)
     {
@@ -79,11 +83,14 @@ public class UnitManager : MonoBehaviour
 
             m_currentUnit = null;
             _cellCalculator.Rule = PlacementRule.Full;
+            _cellCalculator.UnitSize = SingeSize;
         }
         else
         if (target.Unit != null)
         {
-            _cellCalculator.Rule = target.Unit.GetComponent<IPlacementRule>().GetPlacementRule();
+            IPlacementRule UnitRule = target.Unit.GetComponent<IPlacementRule>();
+            _cellCalculator.Rule = UnitRule.GetPlacementRule();
+            _cellCalculator.UnitSize = UnitRule.GetSize();
 
             m_currentUnit = target;
             m_currentUnitInstantiate = board.CanInstantiate();
@@ -115,4 +122,5 @@ public class UnitManager : MonoBehaviour
             foreach (SpaceMark mark in GridRegistry.GetGrid(Type).Values)
                 Debug.Log(mark.Dimension);
     }
+
 }

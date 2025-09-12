@@ -58,19 +58,13 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
         GridMarksDimension = buildResult.GridMarksDimension;
     }
 
-    public void OnMouseHover(Vector3 mouseWorldPosition)
-    {
-        Vector3 cellCenter = _cellCalculator.CellPosition(mouseWorldPosition, _config);
-        //_cellIndicator.transform.position = cellCenter + Vector3.up * _config.indicatorOffset;
-        _highlighter.SetHighlight(cellCenter, GridMarks);
-        _markStatus.SetShowStats(cellCenter, GridMarks);
-    }
-
     public SpaceMark OnMouseSelect(Vector3 mouseWorldPosition, out PlacementSystem This)
     {
         This = this;
         Vector3 cellCenter = _cellCalculator.CellPosition(mouseWorldPosition, _config);
         return GridMarks[cellCenter];
     }
+    public void OnMouseHover(Vector3 mouseWorldPosition) => 
+        _cellCalculator.SetHover(mouseWorldPosition, _config, GridMarks, GridMarksDimension);
     public void OnMouseHoverExit() => _highlighter.StopHighlight();
 }
