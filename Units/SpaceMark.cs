@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class SpaceMark : MonoBehaviour
 {
     public GameObject Unit { get; set;} = null;
     public SpaceMark MirroredMark { get; set; }
-    [field:SerializeField]
     public Vector2Int Dimension { get; set; }
     public GridConfig Config { get; set; }
     public SpaceMark PointerMark { get; set; } = null;
     public bool IsPointer { get; set; } = false;
-
+    public PlacementType Type { get; set; }
     public Dictionary<Vector2Int, SpaceMark> GridMarksDimension { get; set; } = new Dictionary<Vector2Int, SpaceMark>();
-
 
     List<SpaceMark> m_occupiedMarks = new List<SpaceMark>();
 
@@ -28,6 +27,8 @@ public class SpaceMark : MonoBehaviour
     }
     public void SetColor(Color color) => m_meshRenderer.material.color = color;
     public void ResetColor() => m_meshRenderer.material.color = m_color;
+
+    public Vector2Int GetSizeUnit() => Unit.GetComponent<UnitStats>().Size;
     public GameObject Take()
     {
         if (PointerMark != null && PointerMark != this)
@@ -52,36 +53,43 @@ public class SpaceMark : MonoBehaviour
         if (Unit != null)
         {
             Unit.transform.position = this.transform.position;
+            if (Type == PlacementType.UnitHolder)
+                return;
             OccupyBySize();
             SetUnitToCenterPosition();
         }
     }
     void OccupyBySize()
     {
+        if (Type == PlacementType.UnitHolder) return;
+
         var unitStats = Unit.GetComponent<UnitStats>();
         if (unitStats == null) return;
-        if (unitStats.Size == new Vector2Int(1,1)) return;
+
+        if (unitStats.Size == new Vector2Int(1, 1)) return;
 
         IsPointer = true;
+        m_occupiedMarks.Clear();
 
-        foreach (var grid in GridMarksDimension)
+        for (int x = 0; x < unitStats.Size.x; x++)
         {
-            for (int x = 0; x < unitStats.Size.x; x++)
+            for (int y = 0; y < unitStats.Size.y; y++)
             {
-                for (int y = 0; y < unitStats.Size.y; y++)
-                {
-                    Vector2Int targetPos = Dimension + new Vector2Int(x, y);
+                if (x == 0 && y == 0) continue;
 
+                Vector2Int targetPos = Dimension + new Vector2Int(x, y);
+
+                if (GridMarksDimension.ContainsKey(targetPos))
+                {
                     GridMarksDimension[targetPos].Unit = Unit;
                     GridMarksDimension[targetPos].PointerMark = this;
                     m_occupiedMarks.Add(GridMarksDimension[targetPos]);
                 }
             }
-            break; 
         }
     }
 
-     void SetUnitToCenterPosition()
+    void SetUnitToCenterPosition()
     {
         if (Unit == null || m_occupiedMarks.Count == 0) return;
         
@@ -98,5 +106,35 @@ public class SpaceMark : MonoBehaviour
         centerZ /= (m_occupiedMarks.Count + 1);
         
         Unit.transform.position = new Vector3(centerX, transform.position.y, centerZ);
+    }
+
+    public bool CanPlaceUnit(SpaceMark currentUnit)
+    {
+        // On UnitHolder, all units are treated as 1x1 regardless of actual size
+        Vector2Int unitSize = (Type == PlacementType.UnitHolder) ? new Vector2Int(1, 1) : currentUnit.GetSizeUnit();
+        GameObject unitToPlace = currentUnit.Unit;
+
+        for (int x = 0; x < unitSize.x; x++)
+        {
+            for (int y = 0; y < unitSize.y; y++)
+            {
+                Vector2Int targetPos = Dimension + new Vector2Int(x, y);
+                if (!GridMarksDimension.ContainsKey(targetPos))
+                    return false;
+
+                SpaceMark mark = GridMarksDimension[targetPos];
+
+                // Check if this mark has any unit (including pointer marks)
+                if (mark.Unit != null && mark.Unit != unitToPlace)
+                    return false;
+
+                // Additional check: if this is a pointer mark pointing to a different unit
+                // Only do this check if NOT on UnitHolder (since UnitHolder doesn't use pointer marks)
+                if (Type != PlacementType.UnitHolder && mark.PointerMark != null && mark.PointerMark.Unit != null &&
+                    mark.PointerMark.Unit != unitToPlace)
+                    return false;
+            }
+        }
+        return true;
     }
 }

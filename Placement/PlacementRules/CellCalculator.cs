@@ -47,13 +47,11 @@ public class CellCalculator : MonoBehaviour
 
     Vector3 CalculateUnitPlacement(Vector3 position, GridConfig config)
     {
-        var unitSizeOffset = new Vector3(config.grid.cellSize.x * ((UnitSize.x - 1) * 0.25f), 0, config.grid.cellSize.z * ((UnitSize.y - 1) * 0.25f));
-
-        config.gridPosition = config.grid.WorldToCell(position + config.worldOffset - unitSizeOffset);
+        config.gridPosition = config.grid.WorldToCell(position + config.worldOffset);
         Vector2Int offset = config.GridOffset;
 
-        config.gridPosition.x = Mathf.Clamp(config.gridPosition.x, -offset.x, config.dimensions.x - offset.x - 1);
-        config.gridPosition.z = Mathf.Clamp(config.gridPosition.z, -offset.y, (config.dimensions.y / 2) - offset.y - 1);
+        config.gridPosition.x = Mathf.Clamp(config.gridPosition.x, -offset.x, config.dimensions.x - offset.x - UnitSize.x);
+        config.gridPosition.z = Mathf.Clamp(config.gridPosition.z, -offset.y, (config.dimensions.y / 2) - offset.y - UnitSize.y);
 
         return config.grid.GetCellCenterWorld(config.gridPosition) - config.worldOffset;
     }

@@ -68,6 +68,7 @@ class GridBuilder : MonoBehaviour
                 Vector2Int globalCoordinate = new Vector2Int(x, y);
                 GridMarksDimension[globalCoordinate] = GridMarks[position];
                 GridMarks[position].GridMarksDimension = GridMarksDimension;
+                GridMarks[position].Type = _config.currentType;
             }
         }
         return this;

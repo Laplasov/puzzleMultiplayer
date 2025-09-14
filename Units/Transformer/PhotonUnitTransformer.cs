@@ -29,12 +29,12 @@ namespace Assets.Scripts.Units
 
             photonView.RPC("RPC_CreateUnit", RpcTarget.Others, target.Dimension.x, target.Dimension.y, name);
         }
-        public void SelectUnit(SpaceMark current, bool CanInstantiate)
+        public void SelectUnit(SpaceMark current, PlacementSystem board)
         {
             current.Unit.GetComponent<MeshRenderer>().material.color = Color.red;
-            photonView.RPC("RPC_SelectUnit", RpcTarget.Others, current.Dimension.x, current.Dimension.y, CanInstantiate);
+            photonView.RPC("RPC_SelectUnit", RpcTarget.Others, current.Dimension.x, current.Dimension.y, board.CanInstantiate());
         }
-        public void MoveUnit(SpaceMark current, SpaceMark target, bool CanInstantiate, bool currentInstantiate)
+        public void MoveUnit(SpaceMark current, SpaceMark target, PlacementSystem board, PlacementSystem currentBoard)
         {
             current.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
             target.Unit = current.Take();
@@ -43,9 +43,9 @@ namespace Assets.Scripts.Units
             photonView.RPC("RPC_MoveUnit", RpcTarget.Others,
                 current.Dimension.x, current.Dimension.y,
                 target.Dimension.x, target.Dimension.y,
-                CanInstantiate, currentInstantiate);
+                board.CanInstantiate(), currentBoard.CanInstantiate());
         }
-        public void SwapUnits(SpaceMark current, SpaceMark target, bool canInstantiate, bool currentInstantiate)
+        public void SwapUnits(SpaceMark current, SpaceMark target, PlacementSystem board, PlacementSystem currentBoard)
         {
             current.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
             target.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
@@ -63,7 +63,7 @@ namespace Assets.Scripts.Units
             photonView.RPC("RPC_SwapUnits", RpcTarget.Others,
                 current.Dimension.x, current.Dimension.y,
                 target.Dimension.x, target.Dimension.y,
-                canInstantiate, currentInstantiate);
+                board.CanInstantiate(), currentBoard.CanInstantiate());
         }
 
         void Activator(bool CanInstantiate, SpaceMark mark)

@@ -26,6 +26,7 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
     public Dictionary<Vector3, SpaceMark> GridMarks; 
     public Dictionary<Vector2Int, SpaceMark> GridMarksDimension; 
     public bool CanInstantiate() => _config.canInstantiate;
+    public PlacementType GetPlacementType() => _config.currentType;
 
     void Awake()
     {

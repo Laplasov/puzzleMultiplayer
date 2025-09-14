@@ -20,17 +20,17 @@ public class LocalUnitTransformer : MonoBehaviour, IUnitTransformer
         target.Unit = Instantiate(unit, target.transform.position, Quaternion.identity);
         target.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
     }
-    public void SelectUnit(SpaceMark current, bool CanInstantiate)
+    public void SelectUnit(SpaceMark current, PlacementSystem board)
     {
         current.Unit.GetComponent<MeshRenderer>().material.color = Color.red;
     }
-    public void MoveUnit(SpaceMark current, SpaceMark target, bool CanInstantiate, bool currentInstantiate)
+    public void MoveUnit(SpaceMark current, SpaceMark target, PlacementSystem board, PlacementSystem currentBoard)
     {
         current.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
         target.Unit = current.Take();
         target.SetPosition();
     }
-    public void SwapUnits(SpaceMark current, SpaceMark target, bool CanInstantiate, bool currentInstantiate)
+    public void SwapUnits(SpaceMark current, SpaceMark target, PlacementSystem board, PlacementSystem currentBoard)
     {
         current.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
         target.Unit.GetComponent<MeshRenderer>().material.color = Color.white;

@@ -19,7 +19,7 @@ public class ConnectToServer : MonoBehaviourPunCallbacks
     {
         m_loader.SetActive(false);
         m_UnitManager.ClearUnits();
-        m_UnitManager.SwitchToPhoton();
+        //m_UnitManager.SwitchToPhoton();
     }
 
     public override void OnLeftRoom()

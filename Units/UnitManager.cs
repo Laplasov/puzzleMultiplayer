@@ -20,19 +20,20 @@ public class UnitManager : MonoBehaviour
     [SerializeField]
     private UnitPrefabsSO m_prefabs;
     [SerializeField]
-    CellCalculator _cellCalculator;
+    CellCalculator m_cellCalculator;
 
     List<SpaceMark> m_spaceMark = new ();
     SpaceMark m_currentUnit = null;
-    bool m_currentUnitInstantiate;
+    PlacementSystem m_currentBoard;
     bool m_isProcessing = false;
     Vector2Int SingeSize = new Vector2Int(1,1);
-
+    PlacementValidator m_placementValidator = new PlacementValidator();
     public enum UTType { LocalUnitTransformer, PhotonUnitTransformer }
     IUnitTransformer UTransform;
 
     private void Awake() => 
         SetTransform(LocalUnitTransformerComponent);
+
     private void OnEnable() => 
         m_cameraSystem.OnTarget += ChooseTarget;
     private void OnDisable() => 
@@ -76,28 +77,48 @@ public class UnitManager : MonoBehaviour
 
         if (m_currentUnit != null)
         {
-            if (target.Unit == null)
-                UTransform.MoveUnit(m_currentUnit, target, board.CanInstantiate(), m_currentUnitInstantiate);
-            else 
-                UTransform.SwapUnits(m_currentUnit, target, board.CanInstantiate(), m_currentUnitInstantiate);
+            bool shouldMove, shouldSwap;
+            bool canPerformAction = m_placementValidator.CanPerformAction(m_currentUnit, target, board, out shouldMove, out shouldSwap);
+
+            if (!canPerformAction)
+            {
+                m_isProcessing = false;
+                return;
+            }
+
+            if (shouldMove)
+            {
+                UTransform.MoveUnit(m_currentUnit, target, board, m_currentBoard);
+            }
+            else if (shouldSwap)
+            {
+                UTransform.SwapUnits(m_currentUnit, target, board, m_currentBoard);
+            }
+            else
+            {
+                m_isProcessing = false;
+                return;
+            }
 
             m_currentUnit = null;
-            _cellCalculator.Rule = PlacementRule.Full;
-            _cellCalculator.UnitSize = SingeSize;
+            m_cellCalculator.Rule = PlacementRule.Full;
+            m_cellCalculator.UnitSize = SingeSize;
         }
-        else
-        if (target.Unit != null)
+        else if (target.Unit != null)
         {
-            IPlacementRule UnitRule = target.Unit.GetComponent<IPlacementRule>();
-            _cellCalculator.Rule = UnitRule.GetPlacementRule();
-            _cellCalculator.UnitSize = UnitRule.GetSize();
+            SpaceMark unitToSelect = m_placementValidator.GetUnitToSelect(target);
 
-            m_currentUnit = target;
-            m_currentUnitInstantiate = board.CanInstantiate();
-            UTransform.SelectUnit(m_currentUnit, board.CanInstantiate());
+            IPlacementRule UnitRule = unitToSelect.Unit.GetComponent<IPlacementRule>();
+            m_cellCalculator.Rule = UnitRule.GetPlacementRule();
+            m_cellCalculator.UnitSize = UnitRule.GetSize();
+
+            m_currentUnit = unitToSelect;
+            m_currentBoard = board;
+            UTransform.SelectUnit(m_currentUnit, board);
         }
         m_isProcessing = false;
     }
+
     [Button("Reset Units")]
     void ResetUnits() 
     {

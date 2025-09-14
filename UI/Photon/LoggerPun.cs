@@ -15,8 +15,12 @@ public class LoggerPun : MonoBehaviourPunCallbacks
     GameObject m_chat;
     [SerializeField]
     GameObject m_logger;
-
+    [SerializeField]
+    ConnectToServer m_connectToServer;
+    [SerializeField]
+    UnitManager m_UnitManager;
     private void Start() => m_chat.SetActive(false);
+
     public void CreateRoom()
     {
         if (string.IsNullOrEmpty(m_input_Create.text))
@@ -24,8 +28,9 @@ public class LoggerPun : MonoBehaviourPunCallbacks
             Debug.LogWarning("Room name cannot be empty!");
             return;
         }
-
         Debug.Log("Creating room: " + m_input_Create.text);
+
+        m_UnitManager.SwitchToPhoton();
 
         PhotonNetwork.CreateRoom(
             m_input_Create.text,
@@ -43,6 +48,7 @@ public class LoggerPun : MonoBehaviourPunCallbacks
             Debug.LogWarning("Room name cannot be empty!");
             return;
         }
+        m_UnitManager.SwitchToPhoton();
 
         Debug.Log("Joining room: " + m_input_Join.text);
 
