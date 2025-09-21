@@ -20,7 +20,7 @@ namespace Assets.Scripts.Units
             photonView = GetComponent<PhotonView>();
         }
 
-        public void CreateUnit(SpaceMark target, string name) 
+        public GameObject CreateUnit(SpaceMark target, string name) 
         {
             var unit = m_units.GetPrefabByName(name);
 
@@ -28,6 +28,7 @@ namespace Assets.Scripts.Units
             target.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
 
             photonView.RPC("RPC_CreateUnit", RpcTarget.Others, target.Dimension.x, target.Dimension.y, name);
+            return target.Unit;
         }
         public void SelectUnit(SpaceMark current, PlacementSystem board)
         {
@@ -37,7 +38,7 @@ namespace Assets.Scripts.Units
         public void MoveUnit(SpaceMark current, SpaceMark target, PlacementSystem board, PlacementSystem currentBoard)
         {
             current.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
-            target.Unit = current.Take();
+            target.Unit = current.Take(target);
             target.SetPosition();
 
             photonView.RPC("RPC_MoveUnit", RpcTarget.Others,
@@ -50,8 +51,8 @@ namespace Assets.Scripts.Units
             current.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
             target.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
 
-            var unit1 = target.Take();
-            var unit2 = current.Take();
+            var unit1 = target.Take(current);
+            var unit2 = current.Take(target);
             var previousCurrentMark = current;
 
             target.Unit = unit2;
@@ -78,7 +79,7 @@ namespace Assets.Scripts.Units
         void RPC_CreateUnit(int dimX, int dimY, string name)
         {
             Vector2Int originalDim = new Vector2Int(dimX, dimY);
-            SpaceMark mirroredTarget = GridRegistry.GetGrid(PlacementType.UnitHolder)[originalDim].MirroredMark;
+            SpaceMark mirroredTarget = GridRegistry.Instance.GetGrid(PlacementType.UnitHolder)[originalDim].MirroredMark;
 
             var unit = m_units.GetPrefabByName(name);
 
@@ -92,7 +93,7 @@ namespace Assets.Scripts.Units
         {
             PlacementType type = CanInstantiate ? PlacementType.UnitHolder : PlacementType.Battlefield;
             Vector2Int originalDim = new Vector2Int(dimX, dimY);
-            SpaceMark mirroredCurrent = GridRegistry.GetGrid(type)[originalDim].MirroredMark;
+            SpaceMark mirroredCurrent = GridRegistry.Instance.GetGrid(type)[originalDim].MirroredMark;
             if (mirroredCurrent.Unit != null)
                 mirroredCurrent.Unit.GetComponent<MeshRenderer>().material.color = Color.blue;
         }
@@ -106,13 +107,13 @@ namespace Assets.Scripts.Units
             PlacementType typeNext = CanInstantiate ? PlacementType.UnitHolder : PlacementType.Battlefield;
             PlacementType typeCurrent = currentInstantiate ? PlacementType.UnitHolder : PlacementType.Battlefield;
 
-            SpaceMark mirroredCurrent = GridRegistry.GetGrid(typeCurrent)[originalCurrentDim].MirroredMark;
-            SpaceMark mirroredTarget = GridRegistry.GetGrid(typeNext)[originalTargetDim].MirroredMark;
+            SpaceMark mirroredCurrent = GridRegistry.Instance.GetGrid(typeCurrent)[originalCurrentDim].MirroredMark;
+            SpaceMark mirroredTarget = GridRegistry.Instance.GetGrid(typeNext)[originalTargetDim].MirroredMark;
 
             if (mirroredCurrent.Unit != null)
             {
                 mirroredCurrent.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
-                mirroredTarget.Unit = mirroredCurrent.Take();
+                mirroredTarget.Unit = mirroredCurrent.Take(mirroredTarget);
                 mirroredTarget.SetPosition();
             }
             Activator(CanInstantiate, mirroredTarget);
@@ -127,16 +128,16 @@ namespace Assets.Scripts.Units
             PlacementType typeNext = CanInstantiate ? PlacementType.UnitHolder : PlacementType.Battlefield;
             PlacementType typeCurrent = currentInstantiate ? PlacementType.UnitHolder : PlacementType.Battlefield;
 
-            SpaceMark mirroredCurrent = GridRegistry.GetGrid(typeCurrent)[originalCurrentDim].MirroredMark;
-            SpaceMark mirroredTarget = GridRegistry.GetGrid(typeNext)[originalTargetDim].MirroredMark;
+            SpaceMark mirroredCurrent = GridRegistry.Instance.GetGrid(typeCurrent)[originalCurrentDim].MirroredMark;
+            SpaceMark mirroredTarget = GridRegistry.Instance.GetGrid(typeNext)[originalTargetDim].MirroredMark;
 
             if (mirroredCurrent.Unit != null && mirroredTarget.Unit != null)
             {
                 mirroredCurrent.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
                 mirroredTarget.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
 
-                var unit1 = mirroredTarget.Take();
-                var unit2 = mirroredCurrent.Take();
+                var unit1 = mirroredTarget.Take(mirroredCurrent);
+                var unit2 = mirroredCurrent.Take(mirroredTarget);
                 var previousCurrentMark = mirroredCurrent;
 
                 mirroredTarget.Unit = unit2;

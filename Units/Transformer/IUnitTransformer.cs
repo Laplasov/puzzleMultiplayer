@@ -11,7 +11,7 @@ using UnityEngine.UIElements;
 public interface IUnitTransformer
 {
     void SetValues(UnitPrefabsSO units);
-    void CreateUnit(SpaceMark target, string name);
+    GameObject CreateUnit(SpaceMark target, string name);
     void SelectUnit(SpaceMark current, PlacementSystem CurrentInstantiate);
     void MoveUnit(SpaceMark current, SpaceMark target, PlacementSystem CanInstantiate, PlacementSystem CurrentInstantiate);
     void SwapUnits(SpaceMark current, SpaceMark target, PlacementSystem CanInstantiate, PlacementSystem CurrentInstantiate);

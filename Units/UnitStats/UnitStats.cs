@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-public class UnitStats : MonoBehaviour, IPlacementRule
+public class UnitStats : MonoBehaviour, IPlacementRule, IOwnership
 {
     [SerializeField]
     private UnitBaseStats unitBaseStats;
@@ -13,13 +13,19 @@ public class UnitStats : MonoBehaviour, IPlacementRule
     [SerializeField]
     public Vector2Int Size;
     public List<StatsModifier> StatsModifier;
+
     public string Name => unitBaseStats.name;
     public int HP => unitBaseStats.HP;
     public int ATK => unitBaseStats.ATK;
     public int SP => unitBaseStats.SP;
-    public int INIT => unitBaseStats.SP;
+    public int SPD => unitBaseStats.SPD;
     public int HPMOD => unitBaseStats.HP + (StatsModifier?.Sum(x => x.HP) ?? 0);
     public int ATKMOD => unitBaseStats.ATK + (StatsModifier?.Sum(x => x.ATK) ?? 0);
+
+    public int CurrentHP {  get; private set; }
+    public Owner Ownership { get; set; } = Owner.Neutral;
+    void Awake() => ResetHP();
+    public void ResetHP() => CurrentHP = HP;
 
     [Button("Get Stats")]
     void GetStats()

@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using static UnityEngine.UI.GridLayoutGroup;
 
 public class UnitStoreController : MonoBehaviour
 {
@@ -40,7 +41,7 @@ public class UnitStoreController : MonoBehaviour
     int GetRandom() => m_random.Next(0, m_units.Count);
     void Init()
     {
-        var collection = GridRegistry.GetGrid(PlacementType.UnitHolder)
+        var collection = GridRegistry.Instance.GetGrid(PlacementType.UnitHolder)
             .Where(kvp => kvp.Key.y == 0);
 
         m_spaceMark = new SpaceMark[collection.Count()];
@@ -56,7 +57,7 @@ public class UnitStoreController : MonoBehaviour
     {
         SpaceMark vacantMark = GetFreeMark();
         if (vacantMark != null)
-            m_unitManager.CreateUnit(vacantMark, unit.name);
+            m_unitManager.CreateUnit(vacantMark, unit.name, Owner.Ally);
     }
     SpaceMark GetFreeMark()
     {

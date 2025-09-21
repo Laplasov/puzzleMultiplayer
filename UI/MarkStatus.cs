@@ -38,7 +38,7 @@ public class MarkStatus : MonoBehaviour
         _ATK.text = unit.ATK.ToString();
         _HP.text = unit.HP.ToString();
         _SP.text = unit.SP.ToString();
-        _INIT.text = unit.INIT.ToString();
+        _INIT.text = unit.SPD.ToString();
     }
 
 }

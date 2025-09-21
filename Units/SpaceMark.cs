@@ -6,7 +6,20 @@ using static UnityEngine.GraphicsBuffer;
 
 public class SpaceMark : MonoBehaviour
 {
-    public GameObject Unit { get; set;} = null;
+    GameObject m_unit = null;
+    public GameObject Unit
+    {
+        get { return m_unit; }
+        set
+        {
+            if (value != null)
+                GridRegistry.Instance.OnGetUnit += OnGetUnit;
+            else
+                GridRegistry.Instance.OnGetUnit -= OnGetUnit;
+            m_unit = value;
+        }
+    }
+    public SpaceMark CurrentdMark { get; set; }
     public SpaceMark MirroredMark { get; set; }
     public Vector2Int Dimension { get; set; }
     public GridConfig Config { get; set; }
@@ -16,7 +29,6 @@ public class SpaceMark : MonoBehaviour
     public Dictionary<Vector2Int, SpaceMark> GridMarksDimension { get; set; } = new Dictionary<Vector2Int, SpaceMark>();
 
     List<SpaceMark> m_occupiedMarks = new List<SpaceMark>();
-
     MeshRenderer m_meshRenderer;
     Color m_color;
 
@@ -27,12 +39,13 @@ public class SpaceMark : MonoBehaviour
     }
     public void SetColor(Color color) => m_meshRenderer.material.color = color;
     public void ResetColor() => m_meshRenderer.material.color = m_color;
-
-    public Vector2Int GetSizeUnit() => Unit.GetComponent<UnitStats>().Size;
-    public GameObject Take()
+    (UnitStats, SpaceMark) OnGetUnit() => (GetUnitStats(), this);
+    public UnitStats GetUnitStats() => Unit.GetComponent<UnitStats>();
+    public Vector2Int GetSizeUnit() => GetUnitStats().Size;
+    public GameObject Take(SpaceMark newMark)
     {
         if (PointerMark != null && PointerMark != this)
-            return PointerMark.Take();
+            return PointerMark.Take(newMark);
 
         GameObject unit = Unit;
         Unit = null;
@@ -43,11 +56,11 @@ public class SpaceMark : MonoBehaviour
             mark.Unit = null;
             mark.PointerMark = null;
         }
-
         m_occupiedMarks.Clear();
-
         return unit;
     }
+    private void OnDestroy() => GridRegistry.Instance.OnGetUnit -= OnGetUnit;
+
     public void SetPosition() 
     {
         if (Unit != null)
@@ -137,4 +150,5 @@ public class SpaceMark : MonoBehaviour
         }
         return true;
     }
+
 }

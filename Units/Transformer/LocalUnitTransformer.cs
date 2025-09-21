@@ -13,12 +13,13 @@ public class LocalUnitTransformer : MonoBehaviour, IUnitTransformer
     {
         m_units = units;
     }
-    public void CreateUnit(SpaceMark target, string name)
+    public GameObject CreateUnit(SpaceMark target, string name)
     {
         var unit = m_units.GetPrefabByName(name);
 
         target.Unit = Instantiate(unit, target.transform.position, Quaternion.identity);
         target.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
+        return target.Unit;
     }
     public void SelectUnit(SpaceMark current, PlacementSystem board)
     {
@@ -27,7 +28,7 @@ public class LocalUnitTransformer : MonoBehaviour, IUnitTransformer
     public void MoveUnit(SpaceMark current, SpaceMark target, PlacementSystem board, PlacementSystem currentBoard)
     {
         current.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
-        target.Unit = current.Take();
+        target.Unit = current.Take(target);
         target.SetPosition();
     }
     public void SwapUnits(SpaceMark current, SpaceMark target, PlacementSystem board, PlacementSystem currentBoard)
@@ -35,8 +36,8 @@ public class LocalUnitTransformer : MonoBehaviour, IUnitTransformer
         current.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
         target.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
 
-        var unit1 = target.Take();
-        var unit2 = current.Take();
+        var unit1 = target.Take(current);
+        var unit2 = current.Take(target);
         var previousCurrentMark = current;
 
         target.Unit = unit2;

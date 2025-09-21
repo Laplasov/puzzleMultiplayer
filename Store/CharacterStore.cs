@@ -42,7 +42,7 @@ public class CharacterStore : MonoBehaviour
         _ATK.text = baseStats.ATK.ToString();
         _HP.text = baseStats.HP.ToString();
         _SP.text = baseStats.SP.ToString();
-        _INIT.text = baseStats.INIT.ToString();
+        _INIT.text = baseStats.SPD.ToString();
 
         return OnReturnToStore;
     }

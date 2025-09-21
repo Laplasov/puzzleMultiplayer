@@ -33,7 +33,7 @@ public class PlacementSystem : MonoBehaviour, IMouseHover, IMouseSelect
         _highlighter = new Highlighter();
         InitializeComponents();
         BuildGrid();
-        GridRegistry.RegisterGrid(_config.currentType, GridMarksDimension);
+        GridRegistry.Instance.RegisterGrid(_config.currentType, GridMarksDimension);
     }
 
     void InitializeComponents()

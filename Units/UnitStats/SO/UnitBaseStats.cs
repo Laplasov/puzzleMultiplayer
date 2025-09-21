@@ -16,11 +16,11 @@ public class UnitBaseStats : ScriptableObject
     [SerializeField]
     private int _SP;
     [SerializeField]
-    private int _INIT;
+    private int _SPD;
 
     public string Name => _Name;
     public int HP => _HP;
     public int ATK => _ATK;
     public int SP => _SP;
-    public int INIT => _INIT;
+    public int SPD => _SPD;
 }
