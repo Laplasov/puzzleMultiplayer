@@ -22,13 +22,14 @@ public class UnitManager : MonoBehaviour
     [SerializeField]
     CellCalculator m_cellCalculator;
 
-    public enum UTType { LocalUnitTransformer, PhotonUnitTransformer }
     List<SpaceMark> m_spaceMarks = new ();
     bool m_isProcessing = false;
-    PlacementValidator m_placementValidator = new PlacementValidator();
+    PlacementValidator m_placementValidator = new ();
     IUnitTransformer UTransform;
     CommandBuilder m_commandBuilder;
+    public enum UTType { LocalUnitTransformer, PhotonUnitTransformer }
     public IUnitManagerState State { get; set; }
+    public List<UnitLogic> UnitLogics { get; set; } = new ();
 
     private void Awake() => 
         SetTransform(LocalUnitTransformerComponent);
@@ -82,10 +83,14 @@ public class UnitManager : MonoBehaviour
         var unit = UTransform.CreateUnit(target, unitName);
         unit.GetComponent<UnitStats>().Ownership = owner;
         UnitLogic unitLogic = unit.GetComponent<UnitLogic>();
+        UnitLogics.Add(unitLogic);
         unitLogic.CommandBuilder = m_commandBuilder;
         unitLogic.Build();
         if (owner == Owner.Enemy)
-            unit.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
+        {
+            unit.GetComponent<UnitStatsBarUI>().RotateCanvas();
+            unit.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+        }
     }
     void SetTransform(MonoBehaviour transform)
     {
@@ -99,10 +104,15 @@ public class UnitManager : MonoBehaviour
         var units = GridRegistry.Instance.GetAllUnits(PlacementType.Battlefield);
         foreach (var unit in units)
         {
-            if(unit.Item1.Ownership == Ownership && unit.Item1.CurrentHP > 0)
+            if(unit.Item1.Ownership == Ownership && unit.Item1.IsDead == false)
                 return true;
         }
         return false;
+    }
+    [Button("Toggle Units")]
+    public void ToggleUnits()
+    {
+        foreach (UnitLogic UnitLogic in UnitLogics) UnitLogic.ToggleUI();
     }
 
     [Button("Clear Unit")]

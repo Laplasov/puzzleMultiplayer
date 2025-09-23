@@ -1,23 +1,17 @@
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class BasicCommand : IUnitCommand
 {
-    public void ExecuteOnSP(UnitLogic unitLogic)
+    public void Execute(UnitLogic unitLogic, UnitCommandConfig commandConfig, ITargetCommand target)
     {
-        UnitStats[] unitMark = unitLogic.TargetSP.Execute(unitLogic);
+        SpaceMark[] unitMark = target.Execute(unitLogic, commandConfig);
         if (unitMark == null || unitMark.Length == 0)
         {
             Debug.Log("No enemy");
             return; 
         }
-        Debug.Log(unitMark[0].Name);
+        UnitStats unitStatsTarget = unitMark[0].Unit.GetComponent<UnitStats>();
+        Debug.Log(unitStatsTarget.Name);
     }
-
-    public void ExecuteOnSPD(UnitLogic unitLogic)
-    {
-    }
-    public void ExecuteOnHP(UnitLogic unitLogic)
-    {
-    }
-
 }

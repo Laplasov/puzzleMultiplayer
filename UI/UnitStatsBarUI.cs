@@ -30,25 +30,30 @@ public class UnitStatsBarUI : MonoBehaviour
     Vector3 m_originalScale;
     float m_basePool = 100f;
     bool m_toggle = false;
-    bool m_isDead = false;
-
+    private int m_lastCurrentHP;
     private float m_currentSPFill { get; set; } = 0f;
     private float m_currentSPDFill { get; set; } = 0f;
 
     public event Action OnSP;
     public event Action OnSPD;
     public event Action OnHP;
-
-
+    public bool IsDead { get; set; } = false;
+    public Owner Ownership { get; set; }
     void Awake() => m_unitStats = GetComponent<UnitStats>();
     private void Start()
     {
         m_camera = Camera.main;
         m_originalScale = m_canvas.transform.localScale;
 
-        SP.fillAmount = m_basePool;
-        SPD.fillAmount = m_basePool;
+        SP.fillAmount = 1f;
+        SPD.fillAmount = 1f;
+        HP.fillAmount = 1f;
+
+        m_lastCurrentHP = m_unitStats.CurrentHP;
+
     }
+    public void RotateCanvas() => 
+        m_canvas.transform.RotateAround(transform.position, Vector3.up, 180f);
     private void OnDestroy()
     {
         OnSP = null;
@@ -62,8 +67,6 @@ public class UnitStatsBarUI : MonoBehaviour
         if (m_toggle)
             UpdateFillAnimations();
     }
-
-    [Button("Toggle")]
     public void Toggle()
     {
         if (m_toggle) 
@@ -82,7 +85,6 @@ public class UnitStatsBarUI : MonoBehaviour
         }
         m_toggle = !m_toggle;
     }
-
     void BarAnimation()
     {
         Vector3 direction = m_camera.transform.position - transform.position;
@@ -96,12 +98,18 @@ public class UnitStatsBarUI : MonoBehaviour
     }
     void UpdateFillAnimations()
     {
-        if (m_unitStats.CurrentHP <= 0 && !m_isDead)
+        float targetHPFill = (float)m_unitStats.CurrentHP / (float)m_unitStats.HP;
+        targetHPFill = Mathf.Clamp01(targetHPFill);
+
+        HP.fillAmount = Mathf.Lerp(HP.fillAmount, targetHPFill, m_fillAnimationSpeed * Time.deltaTime);
+
+        if (m_unitStats.CurrentHP != m_lastCurrentHP)
         {
+            m_lastCurrentHP = m_unitStats.CurrentHP;
             OnHP?.Invoke();
-            m_isDead = true;
         }
-        if (m_isDead) return;
+
+        if (IsDead) return;
 
         m_currentSPFill += m_unitStats.SP * Time.deltaTime;
         m_currentSPDFill += m_unitStats.SPD * Time.deltaTime;
@@ -110,7 +118,6 @@ public class UnitStatsBarUI : MonoBehaviour
 
         float targetSPFill = m_currentSPFill / m_basePool;
         float targetSPDFill = m_currentSPDFill / m_basePool;
-        float hpFillAmount = m_unitStats.CurrentHP / m_unitStats.HP;
 
         if (SP.fillAmount >= 0.99f && m_currentSPFill >= m_basePool)
         {
@@ -130,7 +137,5 @@ public class UnitStatsBarUI : MonoBehaviour
         else
             SPD.fillAmount = Mathf.Lerp(SPD.fillAmount, targetSPDFill, m_fillAnimationSpeed * Time.deltaTime);
 
-        hpFillAmount = Mathf.Clamp01(hpFillAmount);
-        HP.fillAmount = hpFillAmount;
     }
 }

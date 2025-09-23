@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class ForwardTargetCommand : ITargetCommand
+public class BackwardTargetCommand : ITargetCommand
 {
     public SpaceMark[] Execute(UnitLogic unitLogic, UnitCommandConfig config)
     {
@@ -8,11 +8,12 @@ public class ForwardTargetCommand : ITargetCommand
         var grid = GridRegistry.Instance.GetGrid(PlacementType.Battlefield);
         var myOwner = unitLogic.GetComponent<UnitStats>().Ownership;
 
-        int startRow = myOwner == Owner.Ally ? myPos.y + 1 : myPos.y - 1;
-        int endRow = myOwner == Owner.Ally ? 5 : 0;
-        int step = myOwner == Owner.Ally ? 1 : -1;
+        // Backward means starting from enemy's front row and going to their back row
+        int startRow = myOwner == Owner.Ally ? 5 : 0;  // Enemy's front row
+        int endRow = myOwner == Owner.Ally ? 3 : 2;    // Enemy's back row
+        int step = myOwner == Owner.Ally ? -1 : 1;     // Direction toward enemy's back row
 
-        for (int row = startRow; myOwner == Owner.Ally ? row <= endRow : row >= endRow; row += step)
+        for (int row = startRow; myOwner == Owner.Ally ? row >= endRow : row <= endRow; row += step)
         {
             // Check if this row is blocked according to TargetBlockEnum
             if (TargetUtility.IsRowBlocked(grid, row, myOwner, config.TargetBlockEnum, myPos.x))

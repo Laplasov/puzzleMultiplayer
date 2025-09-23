@@ -8,7 +8,8 @@ using UnityEngine.UI;
 
 public class CharacterStore : MonoBehaviour
 {
-
+    [SerializeField]
+    TMP_Text _Name;
     [SerializeField]
     TMP_Text _ATK;
     [SerializeField]
@@ -39,6 +40,7 @@ public class CharacterStore : MonoBehaviour
                 OnReturnToStore.RemoveAllListeners();
             });
 
+        _Name.text = baseStats.Name;
         _ATK.text = baseStats.ATK.ToString();
         _HP.text = baseStats.HP.ToString();
         _SP.text = baseStats.SP.ToString();

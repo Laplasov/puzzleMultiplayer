@@ -7,6 +7,10 @@ public class EnemySpawner : MonoBehaviour
     UnitManager m_unitManager;
 
     [SerializeField]
+    private PreparedEnemiesSO preparedEnemiesSO;
+
+    /*
+    [SerializeField]
     private Vector2Int enemyCoordinates;
 
     [SerializeField]
@@ -37,4 +41,18 @@ public class EnemySpawner : MonoBehaviour
         SpaceMark targetMark = grid[enemyCoordinates];
         m_unitManager.CreateUnit(targetMark, enemyUnitName, Owner.Enemy);
     }
+    */
+
+    [Button("Create Group")]
+    public void CreateGroup()
+    {
+        var grid = GridRegistry.Instance.GetGrid(PlacementType.Battlefield);
+        foreach (EnemyGroup enemy in preparedEnemiesSO.GroupOfEnemies)
+        {
+            SpaceMark targetMark = grid[enemy.position];
+            m_unitManager.CreateUnit(targetMark, enemy.enemyUnit.name, Owner.Enemy);
+
+        }
+    }
+
 }

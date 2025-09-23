@@ -2,5 +2,5 @@
 
 public interface ITargetCommand
 {
-    public UnitStats[] Execute(UnitLogic unitLogic);
+    public SpaceMark[] Execute(UnitLogic unitLogic, UnitCommandConfig config);
 }

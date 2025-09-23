@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
-public class ForwardTargetCommand : ITargetCommand
+public class FirstRowTargetCommand : ITargetCommand
 {
     public SpaceMark[] Execute(UnitLogic unitLogic, UnitCommandConfig config)
     {
@@ -8,19 +9,23 @@ public class ForwardTargetCommand : ITargetCommand
         var grid = GridRegistry.Instance.GetGrid(PlacementType.Battlefield);
         var myOwner = unitLogic.GetComponent<UnitStats>().Ownership;
 
-        int startRow = myOwner == Owner.Ally ? myPos.y + 1 : myPos.y - 1;
-        int endRow = myOwner == Owner.Ally ? 5 : 0;
-        int step = myOwner == Owner.Ally ? 1 : -1;
+        int targetRow = myOwner == Owner.Enemy ? 2 : 3;
+        int step = targetRow > myPos.y ? 1 : -1;
 
-        for (int row = startRow; myOwner == Owner.Ally ? row <= endRow : row >= endRow; row += step)
+        return SearchRowsUntilTarget(grid, myPos, myOwner, targetRow, step, config);
+    }
+
+    private SpaceMark[] SearchRowsUntilTarget(Dictionary<Vector2Int, SpaceMark> grid, Vector2Int myPos, Owner myOwner, int targetRow, int step, UnitCommandConfig config)
+    {
+        for (int row = myPos.y + step; row != targetRow + step; row += step)
         {
-            // Check if this row is blocked according to TargetBlockEnum
+            // Check if this row is blocked
             if (TargetUtility.IsRowBlocked(grid, row, myOwner, config.TargetBlockEnum, myPos.x))
             {
                 return new SpaceMark[0]; // Blocked - stop search
             }
 
-            // If not blocked, search for enemies according to TargetScopeEnum
+            // If not blocked, search for enemies
             var enemies = TargetUtility.GetEnemiesInRow(grid, row, myOwner, config.TargetScopeEnum, myPos.x);
             if (enemies.Length > 0)
             {
