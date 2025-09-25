@@ -22,6 +22,9 @@ public class UnitManager : MonoBehaviour
     [SerializeField]
     CellCalculator m_cellCalculator;
 
+    [SerializeField]
+    public EnemySpawner EnemySpawner;
+
     List<SpaceMark> m_spaceMarks = new ();
     bool m_isProcessing = false;
     PlacementValidator m_placementValidator = new ();
@@ -37,7 +40,7 @@ public class UnitManager : MonoBehaviour
     {
         State = new PlacementState();
         m_commandBuilder = new CommandBuilder();
-        State.Enter(m_placementValidator, m_cellCalculator, UTransform);
+        State.Enter(this, m_placementValidator, m_cellCalculator, UTransform);
     }
 
     private void OnEnable() => 
@@ -59,10 +62,10 @@ public class UnitManager : MonoBehaviour
     {
         if (m_isProcessing) return;
         m_isProcessing = true;
-        State.Execute(this, target, board);
+        State.Execute(target, board);
         m_isProcessing = false;
     }
-    public void NextState() => State.Exit(this);
+    public void NextState() => State.Exit();
     void SwitchTransformer(UTType type)
     {
         switch (type) 
@@ -118,7 +121,9 @@ public class UnitManager : MonoBehaviour
     [Button("Clear Unit")]
     public void ClearUnits()
     {
-    foreach(PlacementType Type in GridRegistry.Instance.GetAll().Keys)
+        UnitLogics.Clear();
+        m_spaceMarks.Clear();
+        foreach (PlacementType Type in GridRegistry.Instance.GetAll().Keys)
         foreach(SpaceMark mark in GridRegistry.Instance.GetGrid(Type).Values)
             if (mark.Unit != null)
             {
@@ -150,4 +155,15 @@ public class UnitManager : MonoBehaviour
         }
         Debug.Log(result);
     }
+
+    [Button("Test with colors")]
+    void TestWithColors()
+    {
+        var units = GridRegistry.Instance.GetGrid(PlacementType.Battlefield);
+        foreach (var unit in units)
+        {
+            unit.Value.TestWithColor();
+        }
+    }
+
 }

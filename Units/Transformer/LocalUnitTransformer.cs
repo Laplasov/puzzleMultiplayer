@@ -19,6 +19,7 @@ public class LocalUnitTransformer : MonoBehaviour, IUnitTransformer
 
         target.Unit = Instantiate(unit, target.transform.position, Quaternion.identity);
         target.Unit.GetComponent<MeshRenderer>().material.color = Color.white;
+        target.SetPosition();
         return target.Unit;
     }
     public void SelectUnit(SpaceMark current, PlacementSystem board)

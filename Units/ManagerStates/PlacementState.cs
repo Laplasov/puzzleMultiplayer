@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,28 +16,38 @@ public class PlacementState : IUnitManagerState
     PlacementValidator m_placementValidator;
     CellCalculator m_cellCalculator;
     Vector2Int SingeSize = new Vector2Int(1, 1);
+    UnitManager m_unitManager;
 
-    public void Enter(PlacementValidator placementValidator, CellCalculator cellCalculator, IUnitTransformer Transform) 
+    public void Enter(UnitManager unitManager, PlacementValidator placementValidator, CellCalculator cellCalculator, IUnitTransformer Transform) 
     {
         m_placementValidator = placementValidator;
         m_cellCalculator = cellCalculator;
         UTransform = Transform;
+        m_unitManager = unitManager;
+
+        m_unitManager.ClearUnits();
+        m_unitManager.StartCoroutine(DelayedEnemySpawn());
     }
-    public void Execute(UnitManager unitManager, SpaceMark target, PlacementSystem board) => ChooseTarget(unitManager, target, board);
-    public void Exit(UnitManager unitManager) 
+    public void Execute(SpaceMark target, PlacementSystem board) => ChooseTarget(target, board);
+    public void Exit() 
     {
-        if (unitManager.IsUnitsAlive(Owner.Ally))
+        if (!m_unitManager.IsUnitsAlive(Owner.Ally))
         {
             Debug.Log("No units on field or alive!"); 
             return;
         }
 
         var state = new BattleState();
-        state.Enter(m_placementValidator, m_cellCalculator, UTransform);
-        unitManager.State = state;
+        state.Enter(m_unitManager, m_placementValidator, m_cellCalculator, UTransform);
+        m_unitManager.State = state;
+    }
+    private IEnumerator DelayedEnemySpawn()
+    {
+        yield return new WaitForSeconds(3f);
+        m_unitManager.EnemySpawner.CreateGroup();
     }
 
-    void ChooseTarget(UnitManager unitManager, SpaceMark target, PlacementSystem board)
+    void ChooseTarget(SpaceMark target, PlacementSystem board)
     {
 
         if (m_currentUnit != null)

@@ -10,6 +10,7 @@ public class UnitStats : MonoBehaviour, IPlacementRule, IOwnership
     private UnitBaseStats unitBaseStats;
     [SerializeField]
     public PlacementRule placementRule;
+    [Header("X - Width; Y - Height")]
     [SerializeField]
     public Vector2Int Size;
     public List<StatsModifier> StatsModifier;

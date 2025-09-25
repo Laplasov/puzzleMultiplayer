@@ -16,7 +16,9 @@ public enum TargetCommand
     FirstRowTargetCommand,
     CenterRowTargetCommand,
     LastRowTargetCommand,
-    BackwardTargetCommand
+    BackwardTargetCommand,
+    AllyAllTargetCommand,
+    SelfTargetCommand
 }
 public enum TargetScope
 {
@@ -50,7 +52,9 @@ public class CommandBuilder
     { TargetCommand.FirstRowTargetCommand, new FirstRowTargetCommand() },
     { TargetCommand.CenterRowTargetCommand, new CenterRowTargetCommand() },
     { TargetCommand.LastRowTargetCommand, new LastRowTargetCommand() },
-    { TargetCommand.BackwardTargetCommand, new BackwardTargetCommand() }
+    { TargetCommand.BackwardTargetCommand, new BackwardTargetCommand() },
+    { TargetCommand.AllyAllTargetCommand, new AllyAllTargetCommand() },
+    { TargetCommand.SelfTargetCommand, new SelfTargetCommand() }
 };
 
     public void Build(UnitLogic unitLogic)

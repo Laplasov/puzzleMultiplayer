@@ -90,7 +90,11 @@ public class SpaceMark : MonoBehaviour
             {
                 if (x == 0 && y == 0) continue;
 
-                Vector2Int targetPos = Dimension + new Vector2Int(x, y);
+                Vector2Int targetPos;
+                if (unitStats.Ownership == Owner.Ally)
+                    targetPos = Dimension + new Vector2Int(x, y);
+                else
+                    targetPos = Dimension + new Vector2Int(x, -y);
 
                 if (GridMarksDimension.ContainsKey(targetPos))
                 {
@@ -150,5 +154,12 @@ public class SpaceMark : MonoBehaviour
         }
         return true;
     }
+    public void TestWithColor()
+    {
+        if (m_unit)
+            m_meshRenderer.material.color = Color.blue;
+        if (PointerMark)
+            m_meshRenderer.material.color = Color.green;
 
+    }
 }

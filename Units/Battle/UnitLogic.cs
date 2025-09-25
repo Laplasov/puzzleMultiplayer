@@ -62,11 +62,20 @@ public class UnitLogic : MonoBehaviour
     private void HandleSPD() => CommandSPD?.Execute(this, CommandSPDConfig, TargetSPD);
     private void HandleHP() => CommandHP?.Execute(this, CommandHPConfig, TargetHP);
 
-    public Vector2Int GetMyPosition() => GetMySpaceMark().Dimension;
+    public Vector2Int GetMyPosition()
+    {
+        var width = m_unitStats.GetSize().x - 1;
+
+        if (m_unitStats.Ownership == Owner.Ally)
+            return GetMySpaceMark().Dimension + new Vector2Int(0, width);
+        else
+            return GetMySpaceMark().Dimension - new Vector2Int(0, width);
+    }
+
     public SpaceMark GetMySpaceMark()
     {
         var units = GridRegistry.Instance.GetAllUnits(PlacementType.Battlefield);
-        return units.FirstOrDefault(u => u.Item1 == m_unitStats).Item2;
+        return units.FirstOrDefault(u => u.Item1 == m_unitStats && u.Item2.PointerMark == null).Item2;
     }
     public void OnUnitDead()
     {

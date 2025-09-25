@@ -14,25 +14,29 @@ public class BattleState : IUnitManagerState
     //PlacementSystem m_currentBoard;
     PlacementValidator m_placementValidator;
     CellCalculator m_cellCalculator;
+    UnitManager m_unitManager;
     //Vector2Int SingeSize = new Vector2Int(1, 1);
-    public void Enter(PlacementValidator placementValidator, CellCalculator cellCalculator, IUnitTransformer Transform)
+    public void Enter(UnitManager unitManager, PlacementValidator placementValidator, CellCalculator cellCalculator, IUnitTransformer Transform)
     {
         m_placementValidator = placementValidator;
         m_cellCalculator = cellCalculator;
         UTransform = Transform;
+        m_unitManager = unitManager;
+
+        m_unitManager.ToggleUnits();
     }
 
-    public void Execute(UnitManager unitManager, SpaceMark target, PlacementSystem board) => ChooseTarget(unitManager, target, board);
+    public void Execute(SpaceMark target, PlacementSystem board) => ChooseTarget(target, board);
 
-    public void Exit(UnitManager unitManager)
+    public void Exit()
     {
 
         var state = new PlacementState();
-        state.Enter(m_placementValidator, m_cellCalculator, UTransform);
-        unitManager.State = state;
+        state.Enter(m_unitManager, m_placementValidator, m_cellCalculator, UTransform);
+        m_unitManager.State = state;
     }
 
-    void ChooseTarget(UnitManager unitManager, SpaceMark target, PlacementSystem board)
+    void ChooseTarget(SpaceMark target, PlacementSystem board)
     { 
 
     }
