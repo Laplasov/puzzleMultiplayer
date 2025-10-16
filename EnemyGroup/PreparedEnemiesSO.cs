@@ -5,6 +5,9 @@ using System.Collections.Generic;
 public class PreparedEnemiesSO : ScriptableObject
 {
     [SerializeField]
+    private int time;
+    [SerializeField]
     private List<EnemyGroup> groupOfEnemies = new List<EnemyGroup>();
     public List<EnemyGroup> GroupOfEnemies => groupOfEnemies;
+    public int Time => time;
 }
