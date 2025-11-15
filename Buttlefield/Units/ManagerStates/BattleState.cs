@@ -32,16 +32,23 @@ public class BattleState : IUnitManagerState
 
     public void Exit()
     {
-
-        var state = new PlacementState();
-        state.Enter(m_unitManager, m_placementValidator, m_cellCalculator, UTransform);
-        m_unitManager.State = state;
-        m_unitManager.OnRound?.Invoke(false);
-
         if (m_unitManager.EnemySpawner.Index + 1 < m_unitManager.EnemySpawner.PreparedEnemiesSO.Length)
+        {
             m_unitManager.EnemySpawner.Index++;
+            var state = new PlacementState();
+            state.Enter(m_unitManager, m_placementValidator, m_cellCalculator, UTransform);
+            m_unitManager.State = state;
+            m_unitManager.OnRound?.Invoke(false);
+
+        }
         else
-            m_unitManager.EnemySpawner.Index = 0;
+        {
+            //m_unitManager.EnemySpawner.Index = 0;
+            m_unitManager.OnRound?.Invoke(false);
+            m_unitManager.OnReturn?.Invoke();
+        }
+
+
     }
 
     void ChooseTarget(SpaceMark target, PlacementSystem board)

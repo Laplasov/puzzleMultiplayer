@@ -18,6 +18,9 @@ public class CharacterStore : MonoBehaviour
     TMP_Text _SP;
     [SerializeField]
     TMP_Text _INIT;
+    [SerializeField]
+    Sprite[] _image;
+    [SerializeField] Image _displayImage;
 
     [HideInInspector]
     public GameObject Prefab;
@@ -45,6 +48,8 @@ public class CharacterStore : MonoBehaviour
         _HP.text = baseStats.HP.ToString();
         _SP.text = baseStats.SP.ToString();
         _INIT.text = baseStats.SPD.ToString();
+
+        _displayImage.sprite = _image[(int)baseStats.Identity];
 
         return OnReturnToStore;
     }

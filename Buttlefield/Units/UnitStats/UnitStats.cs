@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 public enum DamageType { Hazard, Unit}
+public enum IdentityType { Heart, Diamond, Spade, Club }
 public struct Damage
 {
     public int damage;
@@ -16,12 +17,14 @@ public class UnitStats : MonoBehaviour, IPlacementRule, IOwnership
     [SerializeField]
     private UnitBaseStats unitBaseStats;
     [SerializeField]
+    private IdentityType identity;
+    [SerializeField]
     public PlacementRule placementRule;
     [Header("X - Width; Y - Height")]
     [SerializeField]
     public Vector2Int Size;
     public List<StatsModifier> StatsModifier;
-
+    public IdentityType Identity => identity;
     public string Name => name;
     public int HP => unitBaseStats.HP;
     public int ATK => unitBaseStats.ATK;
@@ -35,6 +38,7 @@ public class UnitStats : MonoBehaviour, IPlacementRule, IOwnership
     public Queue<Damage> DamageTaken = new Queue<Damage>();
     void Awake() => ResetHP();
     public void ResetHP() => CurrentHP = HP;
+
     public DamageType OnHit(int Damage, DamageType type, UnitLogic unitLogic)
     {
         var damage = new Damage();

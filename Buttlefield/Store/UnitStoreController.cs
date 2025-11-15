@@ -37,6 +37,9 @@ public class UnitStoreController : MonoBehaviour
     [SerializeField]
     RectTransform m_defeat;
 
+    [SerializeField]
+    RectTransform m_end;
+
     SpaceMark[] m_spaceMark;
     List<GameObject> m_units;
     System.Random m_random;
@@ -59,6 +62,7 @@ public class UnitStoreController : MonoBehaviour
         m_unitManager.OnRound += SetBattleUI;
         m_enemySpawner = m_unitManager.EnemySpawner;
         m_unitManager.OnLooser += ShowWiner;
+        m_unitManager.OnReturn += ShowResult;
     }
     void Start()
     {
@@ -77,6 +81,7 @@ public class UnitStoreController : MonoBehaviour
         m_store.OnBuyUnit -= CreateUnit;
         m_unitManager.OnRound -= SetBattleUI;
         m_unitManager.OnLooser -= ShowWiner;
+        m_unitManager.OnReturn -= ShowResult;
     }
 
     int GetRandom() => m_random.Next(0, m_units.Count);
@@ -151,6 +156,12 @@ public class UnitStoreController : MonoBehaviour
         }
 
         m_timerBar.fillAmount = m_currentTime / m_roundTime;
+    }
+    public void ShowResult() => StartCoroutine(ShowResultConcurrent());
+    IEnumerator ShowResultConcurrent()
+    {
+        yield return new WaitForSeconds(3f);
+        m_end.gameObject.SetActive(true);
     }
 
     public void ShowWiner(Owner owner) => StartCoroutine(ShowWinerConcurrent(owner));

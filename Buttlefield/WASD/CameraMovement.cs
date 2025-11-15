@@ -2,6 +2,7 @@ using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
 public class CameraMovement : MonoBehaviour
 {
@@ -59,7 +60,7 @@ public class CameraMovement : MonoBehaviour
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
         Ray ray = Camera.main.ScreenPointToRay(mouseScreenPos);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, interactableLayer))
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, interactableLayer) && !EventSystem.current.IsPointerOverGameObject())
         {
             Vector3 mouseWorldPos = hit.point;
             var newHit = hit.collider.GetComponent<IMouseHover>();

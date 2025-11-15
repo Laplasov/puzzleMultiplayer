@@ -69,6 +69,12 @@ public class FirstPersonController : MonoBehaviour
 
     private void HandleMovement()
     {
+
+        if (!characterController.isGrounded)
+        {
+            characterController.Move(Vector3.down * Time.deltaTime);
+        }
+
         _moveInput = moveAction.ReadValue<Vector2>();
         _spaceInput = runAction.ReadValue<float>() > 0.1f;
 

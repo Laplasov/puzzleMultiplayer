@@ -17,11 +17,14 @@ public class UnitStatsBarUI : MonoBehaviour
     [Header("Canvas Settings")]
     [SerializeField]
     Canvas m_canvas;
-    [Header("Animation Settings")]
     [SerializeField]
-    float m_baseDistance = 10f;
-    [SerializeField]
-    float m_scaleFactor = 1f;
+    ImageManager m_imageManager;
+
+    //[Header("Animation Settings")]
+    //[SerializeField]
+    //float m_baseDistance = 10f;
+    //[SerializeField]
+    //float m_scaleFactor = 1f;
     [Header("Pool Settings")]
     [SerializeField]
     float m_fillAnimationSpeed = 2f;
@@ -44,6 +47,8 @@ public class UnitStatsBarUI : MonoBehaviour
     {
         m_camera = Camera.main;
         m_originalScale = m_canvas.transform.localScale;
+        
+        m_imageManager.SetImage(m_unitStats.Identity);
 
         SP.fillAmount = 1f;
         SPD.fillAmount = 1f;
@@ -87,14 +92,18 @@ public class UnitStatsBarUI : MonoBehaviour
     }
     void BarAnimation()
     {
+        m_canvas.transform.LookAt(m_canvas.transform.position + m_camera.transform.forward, m_camera.transform.up);
+
+        /*
         Vector3 direction = m_camera.transform.position - transform.position;
         Vector3 verticalDirection = new Vector3(0, direction.y, direction.z);
         if (verticalDirection != Vector3.zero)
             m_canvas.transform.rotation = Quaternion.LookRotation(verticalDirection);
-
+        /*
         float distance = direction.magnitude;
         float scale = (distance / m_baseDistance) * m_scaleFactor;
         m_canvas.transform.localScale = m_originalScale * scale;
+        */
     }
     void UpdateFillAnimations()
     {
@@ -126,7 +135,9 @@ public class UnitStatsBarUI : MonoBehaviour
             OnSP?.Invoke();
         }
         else
+        {
             SP.fillAmount = Mathf.Lerp(SP.fillAmount, targetSPFill, m_fillAnimationSpeed * Time.deltaTime);
+        }
 
         if (SPD.fillAmount >= 0.99f && m_currentSPDFill >= m_basePool)
         {
@@ -135,7 +146,9 @@ public class UnitStatsBarUI : MonoBehaviour
             OnSPD?.Invoke();
         }
         else
+        {
             SPD.fillAmount = Mathf.Lerp(SPD.fillAmount, targetSPDFill, m_fillAnimationSpeed * Time.deltaTime);
+        }
 
     }
 }

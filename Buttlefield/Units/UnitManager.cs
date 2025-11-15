@@ -36,6 +36,8 @@ public class UnitManager : MonoBehaviour
     public List<UnitLogic> UnitLogics { get; set; } = new ();
     public Action<bool> OnRound;
     public Action<Owner> OnLooser;
+    public SceneDataBridgeSO SceneBridge;
+    public Action OnReturn;
 
     private void Awake() => 
         SetTransform(LocalUnitTransformerComponent);
