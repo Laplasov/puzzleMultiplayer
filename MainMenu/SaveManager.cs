@@ -1,14 +1,17 @@
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 public class SaveManager : MonoBehaviour
 {
     protected SaveManager() {}
+
+    [SerializeField]
+    UnitPrefabsSO m_unitsPrefabs;
     public static SaveManager Instance { get; private set; }
     public SaveData CurrentPlayer { get; set; } = null;
     int m_currentIndex { get; set; }
+    public PlayerProfile CurrentProfile { get; private set; }
 
     string[] m_FileNames = new string[] { "File1.save", "File2.save", "File3.save", "File4.save" };
     private void Awake()
@@ -42,6 +45,7 @@ public class SaveManager : MonoBehaviour
     {
         CurrentPlayer.saveDateTime = DateTime.Now.ToString("MM/dd/yy HH-mm");
         CurrentPlayer.sceneName = SceneManager.GetActiveScene().name;
+
         string path = Path.Combine(Application.persistentDataPath, m_FileNames[m_currentIndex]);
         using (FileStream stream = new FileStream(path, FileMode.Create))
         using (BinaryWriter writer = new BinaryWriter(stream))
@@ -75,14 +79,16 @@ public class SaveManager : MonoBehaviour
             }
         }
     }
-    public void LoadGame(int index)
+
+    public async void LoadGame(int index)
     {
         SaveData data = GetLoadSlot(index);
         if (data != null)
         {
             CurrentPlayer = data;
             m_currentIndex = index;
-            SceneManager.LoadScene(data.sceneName);
+            CurrentProfile = new PlayerProfile(CurrentPlayer.saveName, m_unitsPrefabs, CurrentPlayer.playerProfileDTO);
+            await LoadingManager.Instance.LoadWithScreen(data.sceneName);
         }
     }
 }

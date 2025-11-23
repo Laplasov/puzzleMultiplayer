@@ -30,7 +30,7 @@ public class MainMenuUI : MonoBehaviour
     TMP_InputField m_chooseNameInputField;
 
     [SerializeField]
-    SceneAsset m_newScene;
+    string m_newScene;
 
     [SerializeField]
     LoadSlot[] m_loadSlotsNewGame;
@@ -79,7 +79,7 @@ public class MainMenuUI : MonoBehaviour
         m_mainMenu.SetActive(false);
     }
 
-    public void LoadNewGame() => SceneManager.LoadScene(m_newScene.name);
+    public void LoadNewGame() => SceneManager.LoadScene(m_newScene);
 
     public void GoNewGame()
     {
@@ -121,12 +121,13 @@ public class MainMenuUI : MonoBehaviour
             Debug.LogWarning("Please enter a save name!");
             return;
         }
-
-        SaveManager.Instance.CreateSaveFile(m_currentSlot.Index, m_chooseNameInputField.text, m_newScene.name);
+        LoadSlot slot = m_currentSlot;
+        SaveManager.Instance.CreateSaveFile(m_currentSlot.Index, m_chooseNameInputField.text, m_newScene);
         ExitChoseName();
         SetLoads(m_loadSlotsNewGame);
         SetLoads(m_loadSlotsLoadGame);
-        LoadNewGame();
+        //LoadNewGame();
+        LoadGame(slot);
     }
     public void DeleteAllSaves()
     {

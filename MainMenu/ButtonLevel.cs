@@ -7,12 +7,12 @@ public class ButtonLevel : MonoBehaviour
     [SerializeField]
     SceneDataBridgeSO sceneDataBridge;
     [SerializeField]
-    SceneAsset scene;
+    string scene;
     [SerializeField]
     PreparedEnemiesSO[] preparedEnemiesSO;
     public void OnButton()
     {
         sceneDataBridge.PreparedEnemiesSO = preparedEnemiesSO;
-        SceneManager.LoadScene(scene.name);
+        SceneManager.LoadScene(scene);
     }
 }

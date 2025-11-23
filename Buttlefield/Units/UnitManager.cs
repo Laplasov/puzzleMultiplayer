@@ -39,8 +39,7 @@ public class UnitManager : MonoBehaviour
     public SceneDataBridgeSO SceneBridge;
     public Action OnReturn;
 
-    private void Awake() => 
-        SetTransform(LocalUnitTransformerComponent);
+    private void Awake() => SetTransform(LocalUnitTransformerComponent);
     private void Start()
     {
         State = new PlacementState();

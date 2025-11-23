@@ -40,6 +40,7 @@ public class FirstPersonController : MonoBehaviour
     private bool _spaceInput = false;
     private float run = 0f;
     private Vector2 _rawMouseDelta = Vector2.zero;
+    private bool _toggle = true;
     #endregion
 
     void OnEnable()
@@ -63,10 +64,13 @@ public class FirstPersonController : MonoBehaviour
 
     void Update()
     {
-        HandleLook();
-        HandleMovement();
+        if (_toggle)
+        {
+            HandleLook();
+            HandleMovement();
+        }
     }
-
+    public void Toggle() => _toggle = !_toggle;
     private void HandleMovement()
     {
 
